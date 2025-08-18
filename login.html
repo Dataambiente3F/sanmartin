@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Acceso</title>
+  <link rel="icon" type="image/png" href="images/Candado.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input {
+      padding: 10px 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      outline: none;
+      background-color: #1a1a1a;
+      color: white;
+      text-align: center;
+      width: 200px;
+    }
+
+    input::placeholder {
+      color: #666;
+      font-size: 12px;
+    }
+
+    button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background-color: #333;
+      color: #ccc;
+      border: none;
+      border-radius: 5px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #444;
+      color: #fff;
+    }
+
+    #loader {
+      display: none;
+      position: fixed;
+      background-color: #000;
+      z-index: 9999;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.9s ease;
+    }
+
+    #loader img {
+      width: 60px;
+      height: 60px;
+      animation: spin 1.5s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <input type="password" id="password" placeholder="Ingresar contraseña..." autofocus>
+    <button onclick="checkPassword()">entrar</button>
+  </div>
+
+  <div id="loader">
+  <img src="images/loader.png" alt="Cargando...">
+</div>
+
+
+  <script>
+
+      window.addEventListener("load", function () {
+        const loader = document.getElementById("loader");
+        const loginContainer = document.querySelector(".login-container");
+
+        loader.style.opacity = 0;
+        setTimeout(() => {
+          loader.style.display = "none";
+          loginContainer.style.display = "flex";
+        }, 300);
+      });
+
+    const passwordInput = document.getElementById("password");
+
+async function checkPassword() {
+  const input = document.getElementById("password").value;
+
+  const response = await fetch("/.netlify/functions/verificar-clave", {
+    method: "POST",
+    body: JSON.stringify({ clave: input }),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  const result = await response.json();
+
+  if (result.acceso) {
+    sessionStorage.setItem("authenticated", "true");
+    window.location.href = "index.html";
+  } else {
+    alert("Contraseña incorrecta");
+    document.getElementById("password").value = "";
+  }
+}
+
+
+    // Permitir presionar ENTER para entrar
+    passwordInput.addEventListener("keyup", function(event) {
+      if (event.key === "Enter") {
+        checkPassword();
+      }
+    });
+  </script>
+
+</body>
+</html>

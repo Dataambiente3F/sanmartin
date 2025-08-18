@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>General San Martín</title>
+            <link rel="icon" type="image/png" href="images/3Fpag.png">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/buscador.css">
+        <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /> <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-control-geocoder/dist/Control.Geocoder.css" /> <script src="https://cdn.jsdelivr.net/npm/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    
+    
+       <script>
+        const protocolo = window.location.protocol;
+
+        const esLocal =
+            protocolo === "file:" || // Abrís directo desde archivo
+            window.location.hostname === "localhost" || // Usás live-server
+            window.location.hostname === "127.0.0.1";    // Otro entorno local
+
+        if (!esLocal && sessionStorage.getItem("authenticated") !== "true") {
+            window.location.href = "login.html";
+        }
+        </script>
+
+    
+    </head>
+
+    <body>
+        <script>
+        console.log("Protocol:", window.location.protocol);
+        console.log("Hostname:", window.location.hostname);
+        console.log("URL completa:", window.location.href);
+        </script>
+
+        <div id="loader">
+         <img src="images/loader.png" alt="Cargando...">
+        </div>
+
+        <div id="top-title-bar">
+        <span>Mapa Urbano de General de San Martín</span>
+        <img src="images/3F.png" alt="Logo 3F" id="logo-3f">
+        </div>
+        
+        <!-- INICIO MENÚ -->
+        <div id="main-container">
+            <div id="sidebar">
+
+                <!-- Inicio GENERAL --> 
+                <div class="category">
+                        <div class="category-header">
+                            <div class="category-left">
+                                <button id="generalesToggle" class="eye-button">
+                                    <i id="generalesToggleIcon" class="bi bi-map-fill"></i>
+                                </button>
+                                <span class="category-title">GENERALES</span>
+                            </div>
+                            <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                        </div>
+                        <div class="category-content">
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="togglePartidoBtn" class="layer-toggle-button">
+                                    <i id="partidoLayerIcon" class="bi bi-eye-slash"></i>
+                                    <span>Límite del Partido</span>
+                                </button>
+                            </div> 
+                            <div class="dropdown plazas-dropdown">
+                                <button id="toggleLocalidadesBtn" class="layer-toggle-button">
+                                    <i id="localidadesLayerIcon" class="bi bi-eye-slash"></i>
+                                    <span>Localidades</span>
+                                </button>
+                            </div>  
+                            
+                        </div>
+                </div> <!-- Fin menu-group Generales -->   
+
+                <!-- Inicio ALTA TRANSITABILIDAD --> 
+                <div class="category">
+
+
+                    <div class="category-header">
+                        <div class="category-left">
+                            <button id="altatransitabilidadToggle" class="eye-button">
+                                <i id="altatransitabilidadToggleIcon" class="bi bi-people-fill"></i>
+                            </button>
+                            <span class="category-title">ALTA TRANSITABILIDAD</span>
+                        </div>
+                        <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                    </div>
+
+
+                        <div class="category-content">
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="toggleEjesEstructurantesBtn" class="layer-toggle-button">
+                                    <i id="ejesEstructurantesIcon" class="bi bi-eye-slash"></i>
+                                    <span>Ejes estructurantes</span>
+                                </button>
+                            </div>
+                            <div class="dropdown plazas-dropdown">
+                                <button id="toggleEjesSecundariosBtn" class="layer-toggle-button">
+                                    <i id="ejesSecundariosIcon" class="bi bi-eye-slash"></i>
+                                    <span>Ejes secundarios</span>
+                                </button>
+                            </div>          
+                        </div>
+                </div> <!-- Fin menu-group ALTA TRANSITABILIDAD -->   
+
+                <!-- Inicio CENSO --> 
+                <div class="category">
+                        <div class="category-header">
+                            <div class="category-left">
+                                <button id="censoToggle" class="eye-button">
+                                    <i id="censoToggleIcon" class="bi bi-map-fill"></i>
+                                </button>
+                                <span class="category-title">CENSO 2022</span>
+                            </div>
+                            <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                        </div>
+                        <div class="category-content">
+
+                            
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="togglecensoniveleducativoBtn" class="layer-toggle-button">
+                                    <i id="censoniveleducativoIcon" class="bi bi-eye-slash"></i>
+                                    <span>Máximo nivel de instrucción alcanzado</span>
+                                </button>
+                            </div> 
+ 
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="togglecensoniveleducativo2Btn" class="layer-toggle-button">
+                                    <i id="censoniveleducativo2Icon" class="bi bi-eye-slash"></i>
+                                    <span>Población con estudios superiores completos o incompletos</span>
+                                </button>
+                            </div> 
+                            
+                        </div>
+                </div> <!-- Fin menu-group CENSO -->     
+
+                <!-- Sección ESPACIOS URBANOS -->
+                <div class="category">
+                    <div class="category-header">
+                        <div class="category-left">
+                            <button id="plazasToggle" class="eye-button">
+                                <i id="plazasToggleIcon" class="bi bi-tree-fill"></i>
+                            </button>
+                            <span class="category-title">ESPACIOS URBANOS</span>
+                        </div>
+                        <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                    </div>
+
+                    <div class="category-content"><div class="dropdown plazas-dropdown">
+                        
+
+                        <div class="dropdown plazas-dropdown">
+                            <button id="togglePlazasBtn" class="layer-toggle-button">
+                                <i id="redPlazasIcon" class="bi bi-eye-slash"></i>
+                                <span>Espacios Verdes</span>
+                            </button>
+
+                            <div class="plazas-subcategorias"> <div class="dropdown plazas-dropdown">
+
+                                <div class="dropdown">
+
+                                    <button class="btn-tipologia">
+                                        <i class="bi bi-circle"  id="CircleCestos"></i>
+                                        <span class="tipologia-texto">Cestos</span>
+                                        <i class="bi bi-chevron-compact-down chevron-icon" id="chevronDesplegables"></i>
+                                    </button>
+                                </div>
+                            </div></div>
+                        </div> 
+                        
+                        <div class="dropdown plazas-dropdown">
+                            <button id="toggleCentrosComercialesBtn" class="layer-toggle-button">
+                            <i id="redCentrosComercialesIcon" class="bi bi-eye-slash"></i>
+                            <span>Centros Comerciales</span>
+                            </button>
+                        </div>
+
+                    </div></div>
+                </div> <!-- FIN ESPACIOS URBANOS -->
+
+                <!-- Inicio ELECCIONES --> 
+                <div class="category">
+                        <div class="category-header">
+                            <div class="category-left">
+                                <button id="eleccionesToggle" class="eye-button">
+                                    <i id="eleccionesToggleIcon" class="bi bi-map-fill"></i>
+                                </button>
+                                <span class="category-title">ELECCIONES</span>
+                            </div>
+                            <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                        </div>
+                        <div class="category-content">
+
+                            
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="togglesegundavueltanacional23Btn" class="layer-toggle-button">
+                                    <i id="segundavueltanacional23Icon" class="bi bi-eye-slash"></i>
+                                    <span>2023-Nacional-Segunda Vuelta</span>
+                                </button>
+                            </div> 
+                            
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="toggle2023GeneralesNacionalBtn" class="layer-toggle-button">
+                                    <i id="generales2023Icon" class="bi bi-eye-slash"></i>
+                                    <span>2023-Nacional-Generales</span>
+                                </button>
+                            </div> 
+
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="toggle2023GeneralProvincialBtn" class="layer-toggle-button">
+                                    <i id="generalprovincial2023Icon" class="bi bi-eye-slash"></i>
+                                    <span>2023-Provincial-Generales</span>
+                                </button>
+                            </div> 
+
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="toggle2023GeneralMunicipalBtn" class="layer-toggle-button">
+                                    <i id="generalmunicipal2023Icon" class="bi bi-eye-slash"></i>
+                                    <span>2023-Municipal-Generales</span>
+                                </button>
+                            </div> 
+
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="toggle2023GeneralMunicipalAlianzaBtn" class="layer-toggle-button">
+                                    <i id="generalmunicipalalianza2023Icon" class="bi bi-eye-slash"></i>
+                                    <span>2023-Municipal-Generales-ALIANZAS</span>
+                                </button>
+                            </div> 
+
+                        </div>
+                </div> <!-- Fin menu-group ELECCIONES -->   
+            
+            </div> <!-- FIN MENÚ -->
+
+            <div id="map">
+
+                <!-- LIMPIAR FILTROS -->
+                <button id="resetPageBtn" title="Limpiar filtros">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+
+                <!-- ESTILO DE MAPA -->
+                <button id="toggleMapStyleBtn" title="Cambiar estilo de mapa">
+                    <i class="bi bi-layers-fill"></i>
+                </button>
+
+                <!-- FILTROS ACTIVOS -->
+                <button id="toggleFiltersBtn" title="Mostrar filtros activos">
+                    <i class="bi bi-filter"></i>
+                </button>
+
+            </div>
+        
+            <!-- Capas a agregar -->
+            <script src="layers/Plazas_0.js"></script>
+            <script src="layers/Localidades_0.js"></script>
+            <script src="layers/Limites3F_0.js"></script>
+            <script src="layers/Ejesestructurantes_0.js"></script>
+            <script src="layers/Ejessecundarios_0.js"></script>
+            <script src="layers/CentrosComerciales_0.js"></script>
+            <script src="layers/FRACCIONESCENSALES_0.js"></script>
+            <script src="layers/CIRCUITOS_0.js"></script>
+            <script src="layers/intersecciones.js"></script>
+            <script src="layers/callejero_normalizado.js"></script>
+
+            <script src="js/datosVotos.js"></script>
+            <script src="js/censoNiveleducativo.js"></script>
+
+
+        
+            <script src="js/capasEstilos.js" defer></script>
+            <script src="js/popups.js" defer></script>
+            <script src="js/map.js" defer></script>
+            
+
+            <script src="js/unified_search.js" defer></script>
+            
+
+
+            <!-- FIN Capas a agregar -->
+            <!------------------------------------- GENERALES ----------------------------------->
+            
+            <!-- POPUT PLAZAS -->
+            <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer">✖</a>
+                <div id="popup-content"></div>
+            </div> <!-- FIN POPUT PLAZAS -->
+
+            <!-- POPUP CC -->
+            <div id="popup-comerciales" class="ol-popup" >
+                <a href="#" id="popup-comerciales-closer" >✖</a>
+                <div id="popup-comerciales-content"></div>
+            </div> <!-- FIN POPUT cc -->
+
+        <div id="filtros-activos">
+        <strong>Capas activas:</strong>
+        <span id="texto-filtros-activos">Ninguno</span>
+        </div>
+                
+    </body>
+    
+     <!-- chequeo contraseña
+    <script>
+    if (sessionStorage.getItem("authenticated") !== "true") {
+        window.location.href = "login.html";
+    }
+    </script>
+    -->
+</html>
