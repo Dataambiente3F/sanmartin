@@ -39,32 +39,44 @@ function setupLayerToggleWithEye(buttonId, iconId, layer, categoryIconId, catego
     return { layer, update: updateState };
 }
 
-// 1) Dropdowns Al hacer clic en cualquier botón .btn-tipologia
-document.querySelectorAll('.btn-tipologia:not(.no-toggle)').forEach(btn => {
-    btn.addEventListener('click', e => {
-        // Prevenir que el clic en el ojo afecte al desplegable
-        if (e.target.classList.contains('bi-eye-slash') || e.target.classList.contains('bi-eye-fill')) {
-            return;
-        }
+// 1) Dropdowns - Lógica para botones desplegables
+document.querySelectorAll('.btn-tipologia, .layer-toggle-button').forEach(btn => {
+  const tieneChevron = btn.querySelector('.chevron-icon');
+  if (!tieneChevron) return;
 
-        e.stopPropagation();
-        const clickedDropdown = btn.closest('.dropdown');
-        if (!clickedDropdown) return;
+  btn.addEventListener('click', e => {
+    const clickedDropdown = btn.closest('.dropdown');
+    if (!clickedDropdown) return;
+    e.stopPropagation();
 
-        const wasActive = clickedDropdown.classList.contains('active');
-
-        // Primero, cierra todos los otros desplegables que estén abiertos
-        document.querySelectorAll('.dropdown.active').forEach(activeDropdown => {
-            if (activeDropdown !== clickedDropdown) {
-                activeDropdown.classList.remove('active');
-            }
-        });
-
-        // Luego, abre o cierra el desplegable clickeado
-        clickedDropdown.classList.toggle('active');
+    // cerrar otros (solo hermanos, no padres ni hijos)
+    document.querySelectorAll('.dropdown.active').forEach(activeDropdown => {
+      if (activeDropdown === clickedDropdown) return;                 // mismo
+      if (activeDropdown.contains(clickedDropdown)) return;           // padre
+      if (clickedDropdown.contains(activeDropdown)) return;           // hijo
+      activeDropdown.classList.remove('active');
+      const ic = activeDropdown.querySelector('.chevron-icon');
+      if (ic) {
+        ic.classList.remove('bi-chevron-compact-up');
+        ic.classList.add('bi-chevron-compact-down');
+      }
     });
-});
 
+    // abrir/cerrar este
+    const isOpening = !clickedDropdown.classList.contains('active');
+    clickedDropdown.classList.toggle('active', isOpening);
+
+    // actualizar el chevron de este botón
+    const chev = btn.querySelector('.chevron-icon');
+    if (chev) {
+      const chev = btn.querySelector('.chevron-icon');
+        if (chev) {
+        chev.classList.toggle('bi-chevron-compact-down', isOpening);  // abierto = abajo
+        chev.classList.toggle('bi-chevron-compact-up', !isOpening);   // cerrado = arriba
+        }
+    }
+  });
+});
 
 // 2) Evitar que clics dentro del contenido cierren el menú
   document.querySelectorAll('.dropdown-content').forEach(content => {
@@ -103,13 +115,38 @@ document.querySelectorAll('.btn-tipologia:not(.no-toggle)').forEach(btn => {
         })
     });
 
-if (typeof crearCapaGanadores === 'function') {
-  // crear la capa (la función ahora devuelve la capa)
-  window.segundavueltanacional23Layer = crearCapaGanadores(2023, 'SEGUNDA VUELTA', 'PRESIDENTE Y VICE', 'segundavueltanacional23Layer', null, 'ganador');
-  window.generalnacional23Layer = crearCapaGanadores(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23Layer', null, 'ganador');
-  window.generalprovincial23Layer = crearCapaGanadores(2023, 'GENERAL', 'GOBERNADOR/A', 'generalprovincial23Layer', null, 'ganador');
-  window.generalmunicipal23Layer = crearCapaGanadores(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipal23Layer',  null, 'ganador');
-  window.generalmunicipalalianza23Layer = crearCapaGanadores(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipalalianza23Layer',  alianzaLLA_JxC, 'ganador');
+if (typeof crearCapaResultados === 'function') {
+
+  crearCapaResultados(2023, 'SEGUNDA VUELTA', 'PRESIDENTE Y VICE', 'segundavueltanacional23Layer', {
+    nivelAgregacion: 'circuito'
+  });
+
+  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23Layer', {
+    nivelAgregacion: 'circuito'
+  });
+
+  crearCapaResultados(2023, 'GENERAL', 'GOBERNADOR/A', 'generalprovincial23Layer', {
+    nivelAgregacion: 'circuito'
+  });
+
+  crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipal23Layer', {
+    nivelAgregacion: 'circuito'
+  });
+
+  crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipalalianza23Layer', {
+    nivelAgregacion: 'circuito',
+    alianza: alianzaLLA_JxC
+  });
+
+  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23llaLayer', {
+    nivelAgregacion: 'circuito',
+    partidoEspecifico: 'LA LIBERTAD AVANZA'
+  });
+
+  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23jxcLayer', {
+    nivelAgregacion: 'circuito',
+    partidoEspecifico: 'JUNTOS POR EL CAMBIO'
+  });
 
   // agregarlas al mapa explícitamente
   if (window.segundavueltanacional23Layer) map.addLayer(window.segundavueltanacional23Layer);
@@ -117,6 +154,8 @@ if (typeof crearCapaGanadores === 'function') {
   if (window.generalprovincial23Layer) map.addLayer(window.generalprovincial23Layer);
   if (window.generalmunicipal23Layer) map.addLayer(window.generalmunicipal23Layer);
   if (window.generalmunicipalalianza23Layer) map.addLayer(window.generalmunicipalalianza23Layer);
+  if (window.generalnacional23llaLayer) map.addLayer(window.generalnacional23llaLayer);
+  if (window.generalnacional23jxcLayer) map.addLayer(window.generalnacional23jxcLayer);
 
 }
 
@@ -129,6 +168,29 @@ if (typeof crearCapaPorcentajeEstudios === 'function') {
   window.estudiosSuperioresLayer = crearCapaPorcentajeEstudios('estudiosSuperioresLayer', 'porcentaje_altos');
 if (window.estudiosSuperioresLayer) map.addLayer(window.estudiosSuperioresLayer);
 }
+
+if (typeof crearCapaPorcentajeEdad === 'function') {
+  window.jovenAdultoLayer = crearCapaPorcentajeEdad('jovenAdultoLayer', 'joven');
+  window.ninoLayer = crearCapaPorcentajeEdad('ninoLayer', 'nino');
+  window.adultoLayer = crearCapaPorcentajeEdad('adultoLayer', 'adulto');
+  window.adultomayorLayer = crearCapaPorcentajeEdad('adultomayorLayer', 'adultomayor');
+  window.ancianoLayer = crearCapaPorcentajeEdad('ancianoLayer', 'anciano');
+
+if (window.jovenAdultoLayer) map.addLayer(window.jovenAdultoLayer);
+if (window.ninoLayer) map.addLayer(window.ninoLayer);
+if (window.adultoLayer) map.addLayer(window.adultoLayer);
+if (window.adultomayorLayer) map.addLayer(window.adultomayorLayer);
+if (window.ancianoLayer) map.addLayer(window.ancianoLayer);
+}
+
+if (typeof crearCapaInternet === 'function') {
+  window.internetNoLayer = crearCapaInternet('internetNoLayer', 'No');
+
+if (window.internetNoLayer) map.addLayer(window.internetNoLayer);
+}
+
+
+
 
 document.addEventListener("DOMContentLoaded", function () {
     setupLayerToggleWithEye("togglePlazasBtn", "redPlazasIcon", geojsonLayer);
@@ -215,7 +277,10 @@ document.querySelectorAll('.category-header').forEach(header => {
         clickedCategory.classList.toggle('active');
     });
 });
-
+// Evitar que clics dentro de subcategorías cierren el dropdown padre
+document.querySelectorAll('.plazas-subcategorias').forEach(content => {
+  content.addEventListener('click', e => e.stopPropagation());
+});
 
 // 7) Impide que un click DENTRO del dropdown-content cierre el menú
     document.querySelectorAll('.dropdown-content').forEach(content => {
@@ -490,6 +555,54 @@ censoToggles = [
         'censoToggleIcon',
         'bi-map-fill',
         actualizarEstadoPadreCenso
+    ),
+    setupLayerToggleWithEye(
+        'toggleedadjovenadultoBtn',
+        'edadjovenadultoIcon',
+        jovenAdultoLayer,  // Capa global creada en capasEstilos.js
+        'censoToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreCenso
+    ),
+    setupLayerToggleWithEye(
+        'toggleedadninoBtn',
+        'edadninoIcon',
+        ninoLayer,  // Capa global creada en capasEstilos.js
+        'censoToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreCenso
+    ),
+    setupLayerToggleWithEye(
+        'toggleedadadultoBtn',
+        'edadadultoIcon',
+        adultoLayer,  // Capa global creada en capasEstilos.js
+        'censoToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreCenso
+    ),
+    setupLayerToggleWithEye(
+        'toggleedadadultomayorBtn',
+        'edadadultomayorIcon',
+        adultomayorLayer,  // Capa global creada en capasEstilos.js
+        'censoToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreCenso
+    ),
+    setupLayerToggleWithEye(
+        'toggleedadancianoBtn',
+        'edadancianoIcon',
+        ancianoLayer,  // Capa global creada en capasEstilos.js
+        'censoToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreCenso
+    ),
+    setupLayerToggleWithEye(
+        'toggleinternetnoBtn',
+        'internetnoIcon',
+        internetNoLayer,  // Capa global creada en capasEstilos.js
+        'censoToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreCenso
     )
 ];
 
@@ -566,6 +679,22 @@ eleccionesToggles = [
         'eleccionesToggleIcon',
         'bi-map-fill',
         actualizarEstadoPadreElecciones
+    ), 
+    setupLayerToggleWithEye(
+        'toggle2023GeneralesNacionalLLABtn',
+        'generales2023llaIcon',
+        generalnacional23llaLayer,  // Capa global creada en capasEstilos.js
+        'eleccionesToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreElecciones
+    ),
+    setupLayerToggleWithEye(
+        'toggle2023GeneralesNacionalJXCBtn',
+        'generales2023jxcIcon',
+        generalnacional23jxcLayer,  // Capa global creada en capasEstilos.js
+        'eleccionesToggleIcon',
+        'bi-map-fill',
+        actualizarEstadoPadreElecciones
     )
 ];
 
@@ -633,8 +762,19 @@ map.addLayer(generalnacional23Layer);
 map.addLayer(generalprovincial23Layer);
 map.addLayer(generalmunicipal23Layer);
 map.addLayer(generalmunicipalalianza23Layer);
+map.addLayer(generalnacional23llaLayer);
+map.addLayer(generalnacional23jxcLayer);
 map.addLayer(nivelEducativoLayer);
 map.addLayer(estudiosSuperioresLayer);
+
+map.addLayer(jovenAdultoLayer);
+map.addLayer(ninoLayer);
+map.addLayer(adultoLayer);
+map.addLayer(adultomayorLayer);
+map.addLayer(ancianoLayer);
+
+map.addLayer(internetNoLayer);
+
 
 });
 

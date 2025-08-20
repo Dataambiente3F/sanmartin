@@ -227,31 +227,27 @@ const highlightStyle = new ol.style.Style({ fill:new ol.style.Fill({color:'rgba(
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//Crear ganadores ELECCIONES
+// FUNCIONES PARA CAPAS DE ELECCIONES
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 const alianzaLLA_JxC = {
-  nombre: 'LLA + JxC',
-  partidos: ['LA LIBERTAD AVANZA', 'JUNTOS POR EL CAMBIO']
+    nombre: 'LLA + JxC',
+    partidos: ['LA LIBERTAD AVANZA', 'JUNTOS POR EL CAMBIO']
 };
 
+// --- Funciones de Estilo y Texto (sin cambios) ---
 function obtenerColorParaGanador(ganador) {
-    let colorBase;
-
     if (ganador === 'LLA + JxC' || ganador === 'LA LIBERTAD AVANZA') {
-        colorBase = 'rgba(105, 38, 192, 0.75)'; // Violeta
+        return 'rgba(105, 38, 192, 1)'; // Violeta (opacidad base en 1)
     } else if (ganador === 'JUNTOS POR EL CAMBIO') {
-        colorBase = 'rgba(255, 215, 0, 0.75)'; // Amarillo
+        return 'rgba(255, 215, 0, 1)'; // Amarillo (opacidad base en 1)
     } else if (ganador === 'UNION POR LA PATRIA') {
-        colorBase = 'rgba(38, 169, 192, 0.75)'; // Celeste
+        return 'rgba(38, 169, 192, 1)'; // Celeste (opacidad base en 1)
     } else {
-        return 'gray'; // Para el 'default', devolvemos un color sólido.
+        return 'rgba(128, 128, 128, 1)'; // Gris (opacidad base en 1)
     }
-
-    // Para todos los casos definidos, creamos y devolvemos el patrón.
-    return createHatchPattern(colorBase);
 }
 
-// La función wrapText no necesita cambios.
 function wrapText(text, maxLineLength) {
     if (!text || text.length <= maxLineLength) return text;
     const words = text.split(' ');
@@ -271,41 +267,19 @@ function wrapText(text, maxLineLength) {
     return result;
 }
 
-/**
- * Inserta saltos de línea en un texto para que no exceda una longitud máxima por línea.
- * @param {string} text - El texto a ajustar.
- * @param {number} maxLineLength - La cantidad máxima de caracteres por línea.
- * @returns {string} El texto con los saltos de línea ('\n') insertados.
- */
-function wrapText(text, maxLineLength) {
-    // Si el texto es corto, lo devolvemos directamente para evitar cálculos.
-    if (!text || text.length <= maxLineLength) {
-        return text;
-    }
 
-    const words = text.split(' ');
-    let currentLine = '';
-    let result = '';
+// --- FUNCIÓN PRINCIPAL Y FLEXIBLE CON DIAGNÓSTICO ---
 
-    for (let i = 0; i < words.length; i++) {
-        const word = words[i];
-        // Previene agregar un espacio al inicio de una nueva línea.
-        const lineWithNextWord = currentLine ? currentLine + ' ' + word : word;
+function crearCapaResultados(año, tipoEleccion, cargo, nombreCapa, opciones = {}) {
+    const {
+        nivelAgregacion,
+        alianza = null,
+        partidoEspecifico = null
+    } = opciones;
 
-        if (lineWithNextWord.length > maxLineLength) {
-            result += currentLine + '\n';
-            currentLine = word;
-        } else {
-            currentLine = lineWithNextWord;
-        }
-    }
-    // Agrega la última línea que quedó en el buffer.
-    result += currentLine;
-    return result;
-}
+    console.log(`%c--- Iniciando diagnóstico para: ${nombreCapa} ---`, 'color: yellow; font-weight: bold;');
+    console.log("Modo de operación:", partidoEspecifico ? `Partido Específico (${partidoEspecifico})` : "Ganador General");
 
-
-function crearCapaGanadores(año, tipoEleccion, cargo, nombreCapa, alianza = null, propiedadGanador = 'ganador') {
     // 1. Filtrar votos
     const datosFiltrados = datosVotos.filter(entry =>
         entry[0] === año &&
@@ -313,102 +287,204 @@ function crearCapaGanadores(año, tipoEleccion, cargo, nombreCapa, alianza = nul
         entry[2] === cargo &&
         entry[5] === 'POSITIVO'
     );
+    console.log("1. Datos de votos filtrados:", datosFiltrados);
+    if (datosFiltrados.length === 0) {
+        console.error("¡ERROR! No se encontraron votos con los criterios dados.");
+    }
 
-    // 2. Acumular votos por circuito (CON LÓGICA DE ALIANZA)
-    const ganadoresPorCircuito = {};
-    datosFiltrados.forEach(entry => {
-        let agrupacion = entry[4]; // Usamos let para poder modificarla
-        const circuito = entry[3];
-        const cantidad = entry[6];
+// 2. Acumular votos según el modo de operación
+    const resultadosPorUnidad = {};
 
-        // Si se definió una alianza y la agrupación actual pertenece a ella...
-        if (alianza && alianza.partidos.includes(agrupacion)) {
-            // ...usamos el nombre de la alianza en su lugar.
-            agrupacion = alianza.nombre;
-        }
+    if (partidoEspecifico) {
+        // --- MODO: PARTIDO ESPECÍFICO ---
+        datosFiltrados.forEach(entry => {
+            const idUnidad = entry[3];
+            const agrupacion = entry[4];
+            const cantidad = parseInt(entry[6], 10) || 0; // Aseguramos que los votos sean un NÚMERO
 
-        if (!ganadoresPorCircuito[circuito]) ganadoresPorCircuito[circuito] = {};
-        if (!ganadoresPorCircuito[circuito][agrupacion]) ganadoresPorCircuito[circuito][agrupacion] = 0;
-        
-        ganadoresPorCircuito[circuito][agrupacion] += cantidad;
-    });
-    
-    // El resto de la función (pasos 3, 4, 5 y 6) ya es correcto y no necesita cambios.
-    // ...
-    // 3. Determinar el ganador Y CALCULAR SU PORCENTAJE en cada circuito
-    Object.keys(ganadoresPorCircuito).forEach(circuito => {
-        const agrupaciones = ganadoresPorCircuito[circuito];
-        let ganador = null, maxVotos = -1, totalVotos = 0;
-        for (const [agrupacion, votos] of Object.entries(agrupaciones)) {
-            totalVotos += votos;
-            if (votos > maxVotos) {
-                maxVotos = votos;
-                ganador = agrupacion;
+            if (!resultadosPorUnidad[idUnidad]) {
+                resultadosPorUnidad[idUnidad] = { total: 0, especifico: 0 };
             }
-        }
-        const porcentaje = (totalVotos > 0) ? (maxVotos / totalVotos) * 100 : 0;
-        if (ganador) {
-            ganadoresPorCircuito[circuito] = { nombre: ganador, porcentaje: porcentaje };
+            resultadosPorUnidad[idUnidad].total += cantidad;
+            if (agrupacion === partidoEspecifico) {
+                resultadosPorUnidad[idUnidad].especifico += cantidad;
+            }
+        });
+
+    } else {
+        // --- MODO: GANADOR (Lógica original) ---
+        datosFiltrados.forEach(entry => {
+            let agrupacion = entry[4];
+            const idUnidad = entry[3];
+            const cantidad = entry[6];
+
+            if (alianza && alianza.partidos.includes(agrupacion)) {
+                agrupacion = alianza.nombre;
+            }
+
+            if (!resultadosPorUnidad[idUnidad]) resultadosPorUnidad[idUnidad] = {};
+            if (!resultadosPorUnidad[idUnidad][agrupacion]) resultadosPorUnidad[idUnidad][agrupacion] = 0;
+            
+            resultadosPorUnidad[idUnidad][agrupacion] += cantidad;
+        });
+    }
+     console.log("2. Votos acumulados:", resultadosPorUnidad);
+
+    // 3. Determinar resultado final por unidad (ganador o porcentaje específico)
+  Object.keys(resultadosPorUnidad).forEach(idUnidad => {
+        const datos = resultadosPorUnidad[idUnidad];
+        if (partidoEspecifico) {
+            // Esto ya estaba bien
+            const porcentaje = (datos.total > 0) ? (datos.especifico / datos.total) * 100 : 0;
+            resultadosPorUnidad[idUnidad] = { nombre: partidoEspecifico, porcentaje, votos: datos.especifico };
         } else {
-            ganadoresPorCircuito[circuito] = null;
+            // ESTA ES LA LÓGICA QUE FALTABA PARA EL MODO GANADOR
+            let ganador = null, maxVotos = -1, totalVotos = 0;
+            for (const [agrupacion, votos] of Object.entries(datos)) {
+                totalVotos += votos;
+                if (votos > maxVotos) {
+                    maxVotos = votos;
+                    ganador = agrupacion;
+                }
+            }
+            // Calculamos el porcentaje del ganador sobre el total de votos en esa unidad
+            const porcentaje = (totalVotos > 0) ? (maxVotos / totalVotos) * 100 : 0;
+            // Guardamos tanto el nombre como el porcentaje
+            resultadosPorUnidad[idUnidad] = ganador ? { nombre: ganador, porcentaje } : null;
         }
     });
 
-    // 4. Cargar features y asignar ganador CON SU PORCENTAJE
-    const featuresCircuitos = new ol.format.GeoJSON().readFeatures(json_CIRCUITOS_0, {
-        dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'
-    });
-    const featuresConGanador = featuresCircuitos.map(f => {
-        const idCircuito = f.get('name');
-        const datosGanador = ganadoresPorCircuito[idCircuito];
-        if (datosGanador) {
-            f.set(propiedadGanador, datosGanador.nombre);
-            f.set('porcentaje', datosGanador.porcentaje);
+    // 4. Cargar features y asignar resultados
+    let featuresBase;
+    let idField;
+
+    if (nivelAgregacion === 'circuito') {
+        featuresBase = new ol.format.GeoJSON().readFeatures(json_CIRCUITOS_0, {
+            dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'
+        });
+        idField = 'name';
+    } else if (nivelAgregacion === 'fraccion') {
+         featuresBase = new ol.format.GeoJSON().readFeatures(json_FRACCIONESCENSALES_0, {
+            dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'
+        });
+        idField = 'fraccion';
+    } else {
+        console.error("Nivel de agregación no soportado:", nivelAgregacion);
+        return;
+    }
+    console.log("3. Features (formas) del mapa cargadas:", featuresBase);
+    
+    const featuresConResultados = featuresBase.map(f => {
+        const idUnidad = f.get(idField); // No normalizamos, confiando en tu verificación.
+        const resultado = resultadosPorUnidad[idUnidad];
+        
+        const condicionMostrar = partidoEspecifico ? (resultado && resultado.votos > 0) : resultado;
+
+        if (condicionMostrar) {
+            f.set('resultado_nombre', resultado.nombre);
+            f.set('resultado_porcentaje', resultado.porcentaje);
             return f;
         }
         return null;
     }).filter(f => f !== null);
 
-    // 5. Crear capa con estilo personalizado que USA EL PORCENTAJE
-    const capa = new ol.layer.Vector({
-        source: new ol.source.Vector({ features: featuresConGanador }),
-        style: function (feature) {
-            const ganador = feature.get(propiedadGanador) || '';
-            const porcentaje = feature.get('porcentaje');
-            const color = obtenerColorParaGanador(ganador);
-            const maxChars = 12;
-            const nombreFormateado = wrapText(ganador, maxChars);
-            let textoFinal = nombreFormateado;
+    console.log("4. Features con datos asignados:", featuresConResultados);
+     if (featuresConResultados.length === 0 && featuresBase.length > 0) {
+        console.error("¡ERROR! El cruce de datos falló. Verifica que los IDs coincidan perfectamente y que la propiedad del ID en el GeoJSON ('" + idField + "') sea la correcta.");
+    }
 
+    // 5. Crear la capa
+// 5. Crear la capa
+    const capa = new ol.layer.Vector({
+        source: new ol.source.Vector({ features: featuresConResultados }),
+        
+        // --- INICIO DE LA MODIFICACIÓN DE ESTILO ---
+style: function (feature) {
+            const nombre = feature.get('resultado_nombre') || '';
+            const porcentaje = feature.get('resultado_porcentaje') || 0;
+            
+            // 1. Obtenemos el color base del partido
+            const colorBase = obtenerColorParaGanador(nombre);
+            const rgb = colorBase.match(/\d+/g);
+
+            // 2. Lógica de rangos (como la que te gustó) para definir la opacidad
+            let opacidad = 0.1; // Opacidad por defecto para porcentajes muy bajos o cero
+            if (porcentaje >= 80) {
+                opacidad = 0.95; // Rango Muy Alto
+            } else if (porcentaje >= 60) {
+                opacidad = 0.80; // Rango Alto
+            } else if (porcentaje >= 40) {
+                opacidad = 0.45; // Rango Medio-Alto
+            } else if (porcentaje >= 20) {
+                opacidad = 0.30; // Rango Medio-Bajo
+            } else if (porcentaje > 0) {
+                opacidad = 0.15; // Rango Bajo
+            }
+
+            // 3. Creamos el color final para las rayas
+            const colorParaRayas = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacidad})`;
+            const patronFinal = createHatchPattern(colorParaRayas);
+            
+            // La lógica del texto no cambia
+            const nombreFormateado = wrapText(nombre, 12);
+            let textoFinal = nombreFormateado;
             if (porcentaje != null) {
                 textoFinal += `\n(${Math.round(porcentaje)}%)`;
             }
+
             return new ol.style.Style({
-                fill: new ol.style.Fill({ color }),
+                fill: new ol.style.Fill({ color: patronFinal }),
                 stroke: new ol.style.Stroke({ color: 'rgba(0, 0, 0, 0.75)', width: 1, lineDash: [2, 5] }),
                 text: new ol.style.Text({
                     text: textoFinal,
                     font: 'bold 9px "Open Sans", "Arial Unicode MS", "sans-serif"',
                     textAlign: 'center',
-                    fill: new ol.style.Fill({ color: 'rgba(0,0,0,0.75)' }),
-                    stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.75)', width: 3 }),
+                    fill: new ol.style.Fill({ color: 'rgba(0,0,0,0.85)' }),
+                    stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.85)', width: 3 }),
                     overflow: true
                 })
             });
         },
-        visible: false
+                        visible: false
     });
 
-    // 6. Guardar y agregar al mapa (Sin cambios)
     window[nombreCapa] = capa;
     return capa;
 }
 
-crearCapaGanadores(2023, 'SEGUNDA VUELTA', 'PRESIDENTE Y VICE', 'segundavueltanacional23Layer');
-crearCapaGanadores(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23Layer');
-crearCapaGanadores(2023, 'GENERAL', 'GOBERNADOR/A', 'generalprovincial23Layer');
-crearCapaGanadores(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipal23Layer');
-crearCapaGanadores(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipalalianza23Layer',  alianzaLLA_JxC);
+crearCapaResultados(2023, 'SEGUNDA VUELTA', 'PRESIDENTE Y VICE', 'segundavueltanacional23Layer', {
+    nivelAgregacion: 'circuito'
+});
+
+crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23Layer', {
+    nivelAgregacion: 'circuito'
+});
+
+crearCapaResultados(2023, 'GENERAL', 'GOBERNADOR/A', 'generalprovincial23Layer', {
+    nivelAgregacion: 'circuito'
+});
+
+crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipal23Layer', {
+    nivelAgregacion: 'circuito'
+});
+
+crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipalalianza23Layer', {
+    nivelAgregacion: 'circuito',
+    alianza: alianzaLLA_JxC
+});
+
+crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23llaLayer', {
+    nivelAgregacion: 'circuito',
+    partidoEspecifico: 'LA LIBERTAD AVANZA'
+});
+
+crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23jxcLayer', {
+    nivelAgregacion: 'circuito',
+    partidoEspecifico: 'JUNTOS POR EL CAMBIO'
+});
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -639,3 +715,236 @@ function crearCapaPorcentajeEstudios(nombreCapa, propiedadPorcentaje = 'porcenta
 }
 
 crearCapaPorcentajeEstudios('estudiosSuperioresLayer');
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// población según edad (función genérica para 4 grupos etarios)
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Crea una capa que muestra el porcentaje de población de un grupo etario específico.
+ * @param {string} nombreCapa - El nombre para la variable de la capa (ej. 'capaJovenAdulto').
+ * @param {string} grupoEdad - El grupo de edad a calcular: 'nino', 'joven', 'adulto', 'adultomayor'.
+ * @returns {ol.layer.Vector} La capa de OpenLayers creada.
+ */
+function crearCapaPorcentajeEdad(nombreCapa, grupoEdad) {
+    // Definición de los grupos etarios
+    const grupos = {
+        nino: ['00 a 04', '05 a 09', '10 a 14', '15 a 19'],
+        joven: ['20 a 24', '25 a 29', '30 a 34', '35 a 39'],
+        adulto: ['40 a 44', '45 a 49', '50 a 54', '55 a 59'],
+        adultomayor: ['60 a 64', '65 a 69', '70 a 74', '75 a 79'],
+        anciano: ['80 a 84', '85 a 89', '90 a 94', '95 a 99', '100 a 104', '105 y más']
+    };
+
+    if (!grupos[grupoEdad]) {
+        console.error("Grupo de edad inválido. Use: 'nino', 'joven', 'adulto', 'adultomayor', 'anciano'");
+        return null;
+    }
+
+    const rangosSeleccionados = grupos[grupoEdad];
+    const propiedadPorcentaje = `porcentaje_${grupoEdad}`;
+
+    const datosPorFraccion = {};
+
+    censoEdad.forEach(entry => {
+        const fraccion = entry[0];
+        const rango = entry[1];
+        const casos = entry[2];
+
+        if (!datosPorFraccion[fraccion]) {
+            datosPorFraccion[fraccion] = {
+                totalPoblacion: 0,
+                totalGrupo: 0
+            };
+        }
+
+        datosPorFraccion[fraccion].totalPoblacion += casos;
+
+        if (rangosSeleccionados.includes(rango)) {
+            datosPorFraccion[fraccion].totalGrupo += casos;
+        }
+    });
+
+    const porcentajesFinales = {};
+    Object.keys(datosPorFraccion).forEach(fraccion => {
+        const datos = datosPorFraccion[fraccion];
+        if (datos.totalPoblacion > 0) {
+            const porcentaje = (datos.totalGrupo / datos.totalPoblacion) * 100;
+            porcentajesFinales[fraccion] = parseFloat(porcentaje.toFixed(2));
+        } else {
+            porcentajesFinales[fraccion] = 0;
+        }
+    });
+
+    const featuresFracciones = new ol.format.GeoJSON().readFeatures(json_FRACCIONESCENSALES_0, {
+        dataProjection: 'EPSG:4326',
+        featureProjection: 'EPSG:3857'
+    });
+
+    const featuresConPorcentaje = featuresFracciones.map(f => {
+        const idFraccion = f.get('name');
+        const porcentaje = porcentajesFinales[idFraccion];
+
+        if (porcentaje != null) {
+            f.set(propiedadPorcentaje, porcentaje);
+            return f;
+        }
+        return null;
+    }).filter(f => f !== null);
+
+    const capa = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: featuresConPorcentaje
+        }),
+        style: function (feature) {
+            const porcentaje = feature.get(propiedadPorcentaje);
+
+            // Escala de colores (azules)
+            let color = 'rgba(200, 200, 200, 0.6)'; // gris si no hay datos
+            if (porcentaje >= 40) {
+                color = 'rgba(8, 48, 107, 0.85)';
+            } else if (porcentaje >= 30) {
+                color = 'rgba(33, 113, 181, 0.85)';
+            } else if (porcentaje >= 20) {
+                color = 'rgba(66, 146, 198, 0.85)';
+            } else if (porcentaje >= 10) {
+                color = 'rgba(107, 174, 214, 0.85)';
+            } else {
+                color = 'rgba(189, 215, 231, 0.85)';
+            }
+
+            return new ol.style.Style({
+                fill: new ol.style.Fill({ color }),
+                stroke: new ol.style.Stroke({ color: '#333', width: 1, lineDash: [2, 5] }),
+                text: new ol.style.Text({
+                    text: Math.round(porcentaje) + '%',
+                    font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
+                    fill: new ol.style.Fill({ color: 'rgba(0, 0, 0, 0.75)' }),
+                    stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 255, 0.75)', width: 3 }),
+                    overflow: true
+                })
+            });
+        },
+        visible: false
+    });
+
+    window[nombreCapa] = capa;
+    return capa;
+}
+
+// Ejemplo: crear la capa de Jóvenes Adultos (20–39)
+crearCapaPorcentajeEdad('jovenAdultoLayer', 'joven');
+crearCapaPorcentajeEdad('ninoLayer', 'nino');
+crearCapaPorcentajeEdad('adultoLayer', 'adulto');
+crearCapaPorcentajeEdad('adultomayorLayer', 'adultomayor');
+crearCapaPorcentajeEdad('ancianoLayer', 'anciano');
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Fin población según edad (ejemplo: % Joven Adulto 20–39 años)
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// INTENERT
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Crea una capa que muestra el porcentaje de hogares CON o SIN internet por fracción censal.
+ * @param {string} nombreCapa - Nombre de la variable global que guardará la capa.
+ * @param {string} tipo - "Sí" o "No" (indica qué porcentaje calcular).
+ * @returns {ol.layer.Vector} La capa de OpenLayers creada.
+ */
+function crearCapaInternet(nombreCapa, tipo = "Sí") {
+    const datosPorFraccion = {};
+
+    // Recorrer dataset
+    censoInternet.forEach(entry => {
+    const fraccion = entry[0];
+    const tieneInternet = entry[1];
+    // --- LÍNEA CORREGIDA ---
+    // Aseguramos que 'casos' sea un número entero antes de usarlo.
+    const casos = parseInt(entry[2], 10);
+
+    // Si 'casos' no es un número válido, saltamos esta entrada para evitar errores.
+    if (isNaN(casos)) {
+        return; 
+    }
+    
+    if (!datosPorFraccion[fraccion]) {
+        datosPorFraccion[fraccion] = { total: 0, seleccionados: 0 };
+    }
+
+    datosPorFraccion[fraccion].total += casos;
+    if (tieneInternet === tipo) {
+        datosPorFraccion[fraccion].seleccionados += casos;
+    }
+});
+
+    // Calcular porcentajes
+    const porcentajesFinales = {};
+    Object.keys(datosPorFraccion).forEach(fraccion => {
+        const { total, seleccionados } = datosPorFraccion[fraccion];
+        porcentajesFinales[fraccion] = total > 0 ? parseFloat(((seleccionados / total) * 100).toFixed(2)) : 0;
+    });
+
+    // GeoJSON de fracciones
+    const featuresFracciones = new ol.format.GeoJSON().readFeatures(json_FRACCIONESCENSALES_0, {
+        dataProjection: 'EPSG:4326',
+        featureProjection: 'EPSG:3857'
+    });
+
+    // Asignar porcentaje a cada fracción
+    const featuresConPorcentaje = featuresFracciones.map(f => {
+        const idFraccion = f.get('name');
+        const porcentaje = porcentajesFinales[idFraccion];
+        if (porcentaje != null) {
+            f.set('porcentaje_internet_' + tipo, porcentaje);
+            return f;
+        }
+        return null;
+    }).filter(f => f !== null);
+
+    // Crear capa vectorial
+    const capa = new ol.layer.Vector({
+        source: new ol.source.Vector({ features: featuresConPorcentaje }),
+        style: function (feature) {
+            const porcentaje = feature.get('porcentaje_internet_' + tipo);
+            let color = 'rgba(200,200,200,0.6)';
+
+            if (porcentaje >= 80) {
+                color = 'rgba(8, 104, 172, 0.85)';
+            } else if (porcentaje >= 60) {
+                color = 'rgba(43, 140, 190, 0.85)';
+            } else if (porcentaje >= 40) {
+                color = 'rgba(78, 179, 211, 0.85)';
+            } else if (porcentaje >= 20) {
+                color = 'rgba(123, 204, 196, 0.85)';
+            } else {
+                color = 'rgba(204, 236, 230, 0.85)';
+            }
+
+            return new ol.style.Style({
+                fill: new ol.style.Fill({ color }),
+                stroke: new ol.style.Stroke({ color: '#333', width: 1, lineDash: [2, 5] }),
+                text: new ol.style.Text({
+                    text: Math.round(porcentaje) + '%',
+                    font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
+                    fill: new ol.style.Fill({ color: 'rgba(0,0,0,0.75)' }),
+                    stroke: new ol.style.Stroke({ color: 'rgba(255,255,255,0.75)', width: 3 }),
+                    overflow: true
+                })
+            });
+        },
+        visible: false
+    });
+
+    window[nombreCapa] = capa;
+    return capa;
+}
+
+crearCapaInternet('internetNoLayer', 'No');
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// FIN INTERNET
+//////////////////////////////////////////////////////////////////////////////////////////////////
