@@ -83,49 +83,84 @@ function wrapText(text, maxLineLength) {
     return result;
 }
 
-window.localidadesLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({
-        features: new ol.format.GeoJSON().readFeatures(json_Localidades_0, {
-            dataProjection: 'EPSG:4326',
-            featureProjection: 'EPSG:3857'
-        })
-    }),
-    style: function(feature) {
-        const originalName = feature.get('Nombre') || ''; // Usar '' por si el nombre es nulo
+let mostrarNombresLocalidades = true; 
 
-        // --- ¡Este es el valor clave para ajustar! ---
-        // Definí cuántos caracteres querés por línea antes de forzar un salto.
-        const maxCharsPerLine = 15;
-
-        // Usamos nuestra función para formatear el nombre
-        const wrappedName = wrapText(originalName, maxCharsPerLine);
-        
-        return new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(30,30,30,0.8)',
-                width: 2.5,
-                lineDash: [2.5, 4.5]
-            }),
-            fill: new ol.style.Fill({
-                color: 'rgba(0,0,0,0)'
-            }),
-            text: new ol.style.Text({
-                // Usamos el texto ya procesado por nuestra función
-                text: wrappedName,
-                font: 'bold 10px "Open Sans", "Arial Unicode MS", "sans-serif"',
-                fill: new ol.style.Fill({
-                    color: 'rgba(30,30,30,0.75)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 255, 255, 0.6)',
-                    width: 3
-                }),
-                overflow: true
+    window.localidadesLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: new ol.format.GeoJSON().readFeatures(json_Localidades_0, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
             })
-        });
-    },
-    zIndex: 999
-});
+        }),
+        style: function(feature) {
+    const originalName = feature.get('Nombre') || '';
+
+    const maxCharsPerLine = 15;
+    const wrappedName = wrapText(originalName, maxCharsPerLine);
+
+    const styleBase = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: '#ffffff',
+            width: 4.5,
+        })
+    });
+
+    const stylePrincipal = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'rgba(30,30,30,0.8)',
+            width: 2.5,
+            lineDash: [2.5, 4.5]
+        }),
+        fill: new ol.style.Fill({
+            color: 'rgba(0,0,0,0)'
+        }),
+        text: mostrarNombresLocalidades ? new ol.style.Text({
+            text: wrappedName,
+            font: 'bold 10px "Open Sans", "Arial Unicode MS", "sans-serif"',
+            fill: new ol.style.Fill({
+                color: 'rgba(30,30,30,0.75)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'rgba(255, 255, 255, 0.6)',
+                width: 3
+            }),
+            overflow: true
+        }) : null // 👈 cuando está apagado, NO dibuja texto
+    });
+
+    return [styleBase, stylePrincipal];
+
+        },
+        zIndex: 999
+    });
+
+// Lógica para el botón "Ver/Ocultar Nombres"
+const nombresBtn = document.getElementById('toggleNombresLocalidadesBtn');
+
+if (nombresBtn) {
+    nombresBtn.addEventListener('click', function(event) {
+        event.stopPropagation(); 
+
+        mostrarNombresLocalidades = !mostrarNombresLocalidades;
+
+        // Cambiar el texto
+        this.textContent = mostrarNombresLocalidades ? 'Ocultar Nombres' : 'Ver Nombres';
+
+        // Cambiar estilo
+        this.classList.toggle('active', mostrarNombresLocalidades);
+
+
+        // --- LÍNEA MODIFICADA ---
+        // Esto fuerza a la capa a re-evaluar su función de estilo. Es más robusto.
+        if (window.localidadesLayer) {
+            window.localidadesLayer.setStyle(window.localidadesLayer.getStyle());
+        }
+    });
+}
+
+
+
+
     window.partidoLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
             features: new ol.format.GeoJSON().readFeatures(json_Limites3F_0, {
@@ -136,7 +171,8 @@ window.localidadesLayer = new ol.layer.Vector({
         style: new ol.style.Style({
             stroke: new ol.style.Stroke({ color: 'rgba(30,30,30,0.6)', width: 3.0 }),
             fill: new ol.style.Fill({ color: 'rgba(0,0,0)' })
-        })
+        }),
+        zIndex: 1000
     });
 
     window.ejesestructurantesLayer = new ol.layer.Vector({
@@ -947,4 +983,124 @@ crearCapaInternet('internetNoLayer', 'No');
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // FIN INTERNET
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// TOTAL POBLACIÓN
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Crea una capa que muestra la población total Y EL PORCENTAJE por fracción censal.
+ * Colorea cada fracción según la cantidad de habitantes.
+ * @param {string} nombreCapa - Nombre de la variable global que guardará la capa
+ * @returns {ol.layer.Vector} La capa de OpenLayers creada
+ */
+function crearCapaTotalPoblacion(nombreCapa) {
+    const datosPorFraccion = {};
+
+    // 1. Recorrer dataset de edades y sumar población total por fracción
+    censoEdad.forEach(entry => {
+        const fraccion = entry[0];
+        // Aseguramos que los casos se traten como números
+        const casos = parseInt(entry[2], 10) || 0; 
+
+        if (!datosPorFraccion[fraccion]) {
+            datosPorFraccion[fraccion] = 0;
+        }
+        datosPorFraccion[fraccion] += casos;
+    });
+    
+    // 2. // NUEVO: Calcular la población total general sumando los totales de cada fracción
+    const poblacionTotalGeneral = Object.values(datosPorFraccion).reduce((sum, current) => sum + current, 0);
+
+    // GeoJSON de fracciones
+    const featuresFracciones = new ol.format.GeoJSON().readFeatures(json_FRACCIONESCENSALES_0, {
+        dataProjection: 'EPSG:4326',
+        featureProjection: 'EPSG:3857'
+    });
+
+    // 3. Asignar población total Y PORCENTAJE a cada fracción
+    const featuresConTotales = featuresFracciones.map(f => {
+        const idFraccion = f.get('name');
+        const totalFraccion = datosPorFraccion[idFraccion] || 0;
+        f.set('poblacion_total', totalFraccion);
+        
+        // // NUEVO: Calcular y asignar el porcentaje
+        let porcentaje = 0;
+        if (poblacionTotalGeneral > 0) {
+            porcentaje = parseFloat(((totalFraccion / poblacionTotalGeneral) * 100).toFixed(2));
+        }
+        f.set('porcentaje_poblacion', porcentaje);
+
+        return f;
+    });
+
+    // Crear capa vectorial
+    const capa = new ol.layer.Vector({
+        source: new ol.source.Vector({ features: featuresConTotales }),
+        style: function (feature) {
+                    const total = feature.get('poblacion_total');
+                    const porcentaje = feature.get('porcentaje_poblacion');
+
+                    // 1. Se calcula el color base como antes
+                    let colorBase = 'rgba(200,200,200,0.6)';
+                    if (total >= 8000) {
+                        colorBase = 'rgba(8, 48, 107, 0.85)';
+                    } else if (total >= 6000) {
+                        colorBase = 'rgba(33, 113, 181, 0.85)';
+                    } else if (total >= 4000) {
+                        colorBase = 'rgba(66, 146, 198, 0.85)';
+                    } else if (total >= 2000) {
+                        colorBase = 'rgba(107, 174, 214, 0.85)';
+                    } else if (total > 0) {
+                        colorBase = 'rgba(189, 215, 231, 0.85)';
+                    }
+
+                    // 2. Se crea una versión del color con 50% de opacidad para el fondo
+                    //    Esto reemplaza el valor alfa del string 'rgba(...)'
+                    const colorFondo = colorBase.replace(/, [0-9\.]+\)/, ', 0.5)');
+
+                    // 3. Se crea el patrón rayado con el color base (opaco)
+                    const patronRayado = createHatchPattern(colorBase);
+
+                    // 4. Se devuelve un array con los dos estilos. Se dibujan en orden.
+                    return [
+                        // Estilo 1: El fondo sólido semitransparente
+                        new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                color: colorFondo
+                            })
+                        }),
+                        // Estilo 2: El patrón rayado, el borde y el texto por encima
+                        new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                color: patronRayado
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: '#333',
+                                width: 1,
+                                lineDash: [2, 5]
+                            }),
+                            text: new ol.style.Text({
+                                text: total ? `${total.toString()}\n(${porcentaje}%)` : '',
+                                font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
+                                fill: new ol.style.Fill({ color: 'rgba(0,0,0,0.6)' }),
+                                stroke: new ol.style.Stroke({ color: 'rgba(255,255,255,0.6)', width: 3 }),
+                                overflow: true
+                            })
+                        })
+                    ];
+                },
+            visible: false
+        });
+
+    window[nombreCapa] = capa;
+    return capa;
+}
+
+crearCapaTotalPoblacion('poblacionTotalLayer');
+crearCapaTotalPoblacion('poblacionTotalLayer');
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// FIN TOTAL POBLACIÓN
 //////////////////////////////////////////////////////////////////////////////////////////////////

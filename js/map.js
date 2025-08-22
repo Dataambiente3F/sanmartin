@@ -1,5 +1,6 @@
-document.addEventListener("DOMContentLoaded", function() {
 
+
+document.addEventListener("DOMContentLoaded", function() {
 
 
 // =================================================================
@@ -18,27 +19,90 @@ function setupLayerToggleWithEye(buttonId, iconId, layer, categoryIconId, catego
     };
 
     button.addEventListener('click', (e) => {
-        // Comprobamos si el clic fue SOBRE el ícono del ojo
-        if (icon.contains(e.target)) {
-            // Si fue en el ojo, detenemos la propagación para no afectar el desplegable
-            e.stopPropagation();
-            
-            // Y SOLO AQUÍ, cambiamos la visibilidad de la capa
-            layer.setVisible(!layer.getVisible());
-            updateState(); // Actualizamos el ícono (ojo abierto/cerrado)
-            
-            if (typeof onStateChangeCallback === 'function') {
-                onStateChangeCallback();
-            }
-        }
-        // Si el clic fue en cualquier otra parte del botón, no se hace nada aquí.
-        // El desplegable se abrirá por su propia funcionalidad (ej. Bootstrap).
+    e.stopPropagation(); // No cierres el dropdown al tocar el botón
+    
+    // Siempre que hagan clic en el botón (ya sea en el texto o en el ícono)
+    layer.setVisible(!layer.getVisible());
+    updateState();
+
+    if (typeof onStateChangeCallback === 'function') {
+        onStateChangeCallback();
+    }
     });
+
+    /* BOTÓN QUE HACE QUE SOLO AL TOCAR EYE SE PRENDA O APAGUE LA CAPA
+    button.addEventListener('click', (e) => {
+    // Comprobamos si el clic fue SOBRE el ícono del ojo
+    if (icon.contains(e.target)) {
+        e.stopPropagation();
+        layer.setVisible(!layer.getVisible());
+        updateState();
+        if (typeof onStateChangeCallback === 'function') {
+            onStateChangeCallback();
+        }
+    }
+    // Si el clic fue en cualquier otra parte del botón, no se hace nada aquí.
+    });
+    */
 
     updateState(); // Llama para establecer el estado inicial correcto del ojo
     return { layer, update: updateState };
 }
 
+
+function configurarDropdowns() {
+  // Botones de submenú (soporta .btn-tipologia y .layer-toggle-button)
+  document.querySelectorAll('.btn-tipologia:not(.no-toggle), .layer-toggle-button').forEach(btn => {
+    btn.addEventListener('click', e => {
+      // Si clickean el ojo, no abrimos/cerramos el desplegable
+      if (e.target.classList.contains('bi-eye-slash') || e.target.classList.contains('bi-eye-fill')) return;
+
+      e.stopPropagation();
+      const clickedDropdown = btn.closest('.dropdown');
+      if (!clickedDropdown) return;
+
+      const isOpening = !clickedDropdown.classList.contains('active');
+
+      // Cerrar otros dropdowns hermanos
+      document.querySelectorAll('.dropdown.active').forEach(d => {
+        if (d === clickedDropdown) return;
+        // Evita cerrar padres/hijos si tenés anidación
+        if (d.contains(clickedDropdown) || clickedDropdown.contains(d)) return;
+        d.classList.remove('active');
+        const ic = d.querySelector('.layer-toggle-button .chevron-icon, .btn-tipologia .chevron-icon');
+        if (ic) ic.classList.remove('rotated');
+      });
+
+      // Abrir/cerrar el actual
+      clickedDropdown.classList.toggle('active', isOpening);
+
+      // Rotar chevron del botón clickeado
+      const chev = btn.querySelector('.chevron-icon');
+      if (chev) chev.classList.toggle('rotated', isOpening);
+    });
+  });
+
+  // Evitar cerrar al click interno
+  document.querySelectorAll('.dropdown-content, .plazas-subcategorias').forEach(c =>
+    c.addEventListener('click', e => e.stopPropagation())
+  );
+
+  // Cerrar todo al click afuera
+/*
+document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown.active').forEach(d => {
+      d.classList.remove('active');
+      const ic = d.querySelector('.layer-toggle-button .chevron-icon, .btn-tipologia .chevron-icon');
+      if (ic) ic.classList.remove('rotated');
+    });
+});
+*/
+
+
+
+}
+
+ 
 // 1) Dropdowns - Lógica para botones desplegables
 document.querySelectorAll('.btn-tipologia, .layer-toggle-button').forEach(btn => {
   const tieneChevron = btn.querySelector('.chevron-icon');
@@ -49,17 +113,14 @@ document.querySelectorAll('.btn-tipologia, .layer-toggle-button').forEach(btn =>
     if (!clickedDropdown) return;
     e.stopPropagation();
 
-    // cerrar otros (solo hermanos, no padres ni hijos)
+    // cerrar otros dropdowns abiertos (solo hermanos)
     document.querySelectorAll('.dropdown.active').forEach(activeDropdown => {
       if (activeDropdown === clickedDropdown) return;                 // mismo
       if (activeDropdown.contains(clickedDropdown)) return;           // padre
       if (clickedDropdown.contains(activeDropdown)) return;           // hijo
       activeDropdown.classList.remove('active');
       const ic = activeDropdown.querySelector('.chevron-icon');
-      if (ic) {
-        ic.classList.remove('bi-chevron-compact-up');
-        ic.classList.add('bi-chevron-compact-down');
-      }
+      if (ic) ic.classList.remove('rotated');
     });
 
     // abrir/cerrar este
@@ -69,11 +130,7 @@ document.querySelectorAll('.btn-tipologia, .layer-toggle-button').forEach(btn =>
     // actualizar el chevron de este botón
     const chev = btn.querySelector('.chevron-icon');
     if (chev) {
-      const chev = btn.querySelector('.chevron-icon');
-        if (chev) {
-        chev.classList.toggle('bi-chevron-compact-down', isOpening);  // abierto = abajo
-        chev.classList.toggle('bi-chevron-compact-up', !isOpening);   // cerrado = arriba
-        }
+      chev.classList.toggle('rotated', isOpening);
     }
   });
 });
@@ -83,17 +140,7 @@ document.querySelectorAll('.btn-tipologia, .layer-toggle-button').forEach(btn =>
     content.addEventListener('click', e => e.stopPropagation());
   });
 
-  // 3) Al clic fuera de cualquier dropdown, cerrar TODOS
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown.active').forEach(drop => {
-      drop.classList.remove('active');
-      const icon = drop.querySelector('i');
-      if (icon) {
-        icon.classList.remove('bi-chevron-compact-up');
-        icon.classList.add('bi-chevron-compact-down');
-      }
-    });
-  });
+
   
     // 4) Inicializar el mapa ORDEN CAPAS
     // Modificación para 'map':
@@ -106,7 +153,6 @@ document.querySelectorAll('.btn-tipologia, .layer-toggle-button').forEach(btn =>
             centrosComercialesLayer,
             localidadesLayer, partidoLayer,  
             ejesestructurantesLayer, ejessecundariosLayer
-            // No añadas searchMarkerLayer aquí si ya la añades abajo explícitamente
         ],
 
         view: new ol.View({
@@ -116,39 +162,14 @@ document.querySelectorAll('.btn-tipologia, .layer-toggle-button').forEach(btn =>
     });
 
 if (typeof crearCapaResultados === 'function') {
+  crearCapaResultados(2023, 'SEGUNDA VUELTA', 'PRESIDENTE Y VICE', 'segundavueltanacional23Layer', {nivelAgregacion: 'circuito'});
+  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23Layer', {nivelAgregacion: 'circuito'});
+  crearCapaResultados(2023, 'GENERAL', 'GOBERNADOR/A', 'generalprovincial23Layer', {nivelAgregacion: 'circuito'});
+  crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipal23Layer', { nivelAgregacion: 'circuito'});
+  crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipalalianza23Layer', {nivelAgregacion: 'circuito',alianza: alianzaLLA_JxC});
+  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23llaLayer', {nivelAgregacion: 'circuito',partidoEspecifico: 'LA LIBERTAD AVANZA'});
+  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23jxcLayer', {nivelAgregacion: 'circuito',partidoEspecifico: 'JUNTOS POR EL CAMBIO'});
 
-  crearCapaResultados(2023, 'SEGUNDA VUELTA', 'PRESIDENTE Y VICE', 'segundavueltanacional23Layer', {
-    nivelAgregacion: 'circuito'
-  });
-
-  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23Layer', {
-    nivelAgregacion: 'circuito'
-  });
-
-  crearCapaResultados(2023, 'GENERAL', 'GOBERNADOR/A', 'generalprovincial23Layer', {
-    nivelAgregacion: 'circuito'
-  });
-
-  crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipal23Layer', {
-    nivelAgregacion: 'circuito'
-  });
-
-  crearCapaResultados(2023, 'GENERAL', 'INTENDENTE/A', 'generalmunicipalalianza23Layer', {
-    nivelAgregacion: 'circuito',
-    alianza: alianzaLLA_JxC
-  });
-
-  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23llaLayer', {
-    nivelAgregacion: 'circuito',
-    partidoEspecifico: 'LA LIBERTAD AVANZA'
-  });
-
-  crearCapaResultados(2023, 'GENERAL', 'PRESIDENTE Y VICE', 'generalnacional23jxcLayer', {
-    nivelAgregacion: 'circuito',
-    partidoEspecifico: 'JUNTOS POR EL CAMBIO'
-  });
-
-  // agregarlas al mapa explícitamente
   if (window.segundavueltanacional23Layer) map.addLayer(window.segundavueltanacional23Layer);
   if (window.generalnacional23Layer) map.addLayer(window.generalnacional23Layer);
   if (window.generalprovincial23Layer) map.addLayer(window.generalprovincial23Layer);
@@ -156,17 +177,14 @@ if (typeof crearCapaResultados === 'function') {
   if (window.generalmunicipalalianza23Layer) map.addLayer(window.generalmunicipalalianza23Layer);
   if (window.generalnacional23llaLayer) map.addLayer(window.generalnacional23llaLayer);
   if (window.generalnacional23jxcLayer) map.addLayer(window.generalnacional23jxcLayer);
-
 }
 
-if (typeof crearCapaNivelEducativo === 'function') {
-  window.nivelEducativoLayer = crearCapaNivelEducativo('nivelEducativoLayer', 'nivel_ganador');
+if (typeof crearCapaNivelEducativo === 'function') {window.nivelEducativoLayer = crearCapaNivelEducativo('nivelEducativoLayer', 'nivel_ganador');
 if (window.nivelEducativoLayer) map.addLayer(window.nivelEducativoLayer);
 }
 
-if (typeof crearCapaPorcentajeEstudios === 'function') {
-  window.estudiosSuperioresLayer = crearCapaPorcentajeEstudios('estudiosSuperioresLayer', 'porcentaje_altos');
-if (window.estudiosSuperioresLayer) map.addLayer(window.estudiosSuperioresLayer);
+if (typeof crearCapaPorcentajeEstudios === 'function') {window.estudiosSuperioresLayer = crearCapaPorcentajeEstudios('estudiosSuperioresLayer', 'porcentaje_altos');
+    if (window.estudiosSuperioresLayer) map.addLayer(window.estudiosSuperioresLayer);
 }
 
 if (typeof crearCapaPorcentajeEdad === 'function') {
@@ -189,8 +207,11 @@ if (typeof crearCapaInternet === 'function') {
 if (window.internetNoLayer) map.addLayer(window.internetNoLayer);
 }
 
+if (typeof crearCapaTotalPoblacion === 'function') {
+  window.poblacionTotalLayer = crearCapaTotalPoblacion('poblacionTotalLayer');
 
-
+if (window.poblacionTotalLayer) map.addLayer(window.poblacionTotalLayer);
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     setupLayerToggleWithEye("togglePlazasBtn", "redPlazasIcon", geojsonLayer);
@@ -209,8 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
     
 
-    // Modificación para 'searchMarkerLayer':
-    window.searchMarkerLayer = new ol.layer.Vector({ // Añade 'window.'
+    window.searchMarkerLayer = new ol.layer.Vector({ 
       source: new ol.source.Vector(),
       style: new ol.style.Style({
         image: new ol.style.Icon({
@@ -227,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }),
       zIndex: 1001 
     });
-    window.map.addLayer(window.searchMarkerLayer); // Usa window.map aquí también
+    window.map.addLayer(window.searchMarkerLayer); 
 
 
     // SATELITE 
@@ -249,11 +269,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Lógica para botones sobre el mapa FILTROS ACTIVOS
-    document.getElementById('toggleFiltersBtn').addEventListener('click', function() {
-        document.getElementById('filtros-activos').classList.toggle('visible');
-    });
-
     // Estado inicial de las capas (apagadas, excepto las de GENERALES)
     [
         geojsonLayer, ejesestructurantesLayer,
@@ -262,21 +277,35 @@ document.addEventListener("DOMContentLoaded", function () {
    
     // 6) Toggle categorías (abre/cierra la categoría y cambia el ícono chevron si existe)
 document.querySelectorAll('.category-header').forEach(header => {
-    header.addEventListener('click', () => {
-        const clickedCategory = header.closest('.category');
-        const shouldOpen = !clickedCategory.classList.contains('active');
+  header.addEventListener('click', e => {
+    e.stopPropagation();
+    const clickedCategory = header.closest('.category');
+    const isOpening = !clickedCategory.classList.contains('active');
 
-        // Primero, cierra todas las otras categorías que estén activas
-        document.querySelectorAll('.category.active').forEach(category => {
-            if (category !== clickedCategory) {
-                category.classList.remove('active');
-            }
-        });
+    // Cerrar otras categorías
+    document.querySelectorAll('.category.active').forEach(cat => {
+    if (cat === clickedCategory) return;
+    cat.classList.remove('active');
+    const ic = cat.querySelector('.category-header .chevron-icon');
+    if (ic) ic.classList.remove('rotated');
 
-        // Luego, simplemente abre o cierra la categoría que fue clickeada
-        clickedCategory.classList.toggle('active');
+    // 🔑 Cerrar todos los dropdowns internos de esa categoría
+    cat.querySelectorAll('.dropdown.active').forEach(d => {
+        d.classList.remove('active');
+        const ic2 = d.querySelector('.chevron-icon');
+        if (ic2) ic2.classList.remove('rotated');
     });
+    });
+
+    // Abrir/cerrar la clickeada
+    clickedCategory.classList.toggle('active', isOpening);
+
+    // Rotar su chevron
+    const chev = header.querySelector('.chevron-icon');
+    if (chev) chev.classList.toggle('rotated', isOpening);
+  });
 });
+
 // Evitar que clics dentro de subcategorías cierren el dropdown padre
 document.querySelectorAll('.plazas-subcategorias').forEach(content => {
   content.addEventListener('click', e => e.stopPropagation());
@@ -603,6 +632,14 @@ censoToggles = [
         'censoToggleIcon',
         'bi-map-fill',
         actualizarEstadoPadreCenso
+    ),
+    setupLayerToggleWithEye(
+    'togglepoblaciontotalBtn',
+    'poblaciontotalIcon',
+    poblacionTotalLayer,
+    'censoToggleIcon',
+    'bi-map-fill',
+    actualizarEstadoPadreCenso
     )
 ];
 
@@ -698,7 +735,7 @@ eleccionesToggles = [
     )
 ];
 
-document.getElementById('eleccionesToggle').addEventListener('click', function (e) {
+document.getElementById('eleccionesToggles').addEventListener('click', function (e) {
     e.stopPropagation();
     const icon = document.getElementById('eleccionesToggleIcon');
     const isCurrentlyOn = icon.classList.contains('bi-map-fill');
@@ -753,9 +790,19 @@ map.on('click', function(evt) {
     }
 
 });
-// =================================================================
-// FIN GESTOR DE CLICS Y POPUPS UNIFICADO (REEMPLAZA TODOS LOS map.on('click'))
-// =================================================================
+
+
+
+//seleccionExclusiva
+if (window.makeExclusiveByVisibility) {
+  window.makeExclusiveByVisibility(censoToggles);
+}
+
+//seleccionExclusiva
+if (window.makeExclusiveByVisibility) {
+  window.makeExclusiveByVisibility(eleccionesToggles);
+}
+
 
 map.addLayer(segundavueltanacional23Layer);
 map.addLayer(generalnacional23Layer);
@@ -775,8 +822,10 @@ map.addLayer(ancianoLayer);
 
 map.addLayer(internetNoLayer);
 
-
+map.addLayer(poblacionTotalLayer);
 });
+
+
 
 // =================================================================
 // FUNCIÓN CENTRAL PARA ACTUALIZAR EL RESUMEN DE FILTROS ACTIVOS
@@ -816,3 +865,4 @@ window.addEventListener("load", function () {
 
 
 map.addLayer(window.localidadesLayer);
+

@@ -43,7 +43,7 @@
         </div>
 
         <div id="top-title-bar">
-        <span>Mapa Urbano de General de San Martín</span>
+        <span>Mapa Urbano</span>
         <img src="images/3F.png" alt="Logo 3F" id="logo-3f">
         </div>
         
@@ -73,8 +73,9 @@
                                 <button id="toggleLocalidadesBtn" class="layer-toggle-button">
                                     <i id="localidadesLayerIcon" class="bi bi-eye-slash"></i>
                                     <span>Localidades</span>
+                                    <span id="toggleNombresLocalidadesBtn" class="nombres-toggle-text">Ocultar Nombres</span>
                                 </button>
-                            </div>  
+                            </div>
                             
                         </div>
                 </div> <!-- Fin menu-group Generales -->   
@@ -111,93 +112,100 @@
                 </div> <!-- Fin menu-group ALTA TRANSITABILIDAD -->   
 
                 <!-- Inicio CENSO --> 
-<div class="category">
-    <div class="category-header">
-        <div class="category-left">
-            <button id="censoToggle" class="eye-button">
-                <i id="censoToggleIcon" class="bi bi-map-fill"></i>
-            </button>
-            <span class="category-title">CENSO 2022</span>
-        </div>
-        <i class="bi bi-chevron-compact-down chevron-icon"></i>
-    </div>
+                <div class="category">
+                    <div class="category-header">
+                        <div class="category-left">
+                            <button id="censoToggle" class="eye-button">
+                                <i id="censoToggleIcon" class="bi bi-map-fill"></i>
+                            </button>
+                            <span class="category-title">CENSO 2022</span>
+                        </div>
+                        <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                    </div>
 
-    <div class="category-content">
+                    <div class="category-content">
+                        
+                        <div class="dropdown plazas-dropdown">
+                                <button id="togglepoblaciontotalBtn" class="layer-toggle-button">
+                                    <i id="poblaciontotalIcon" class="bi bi-eye-slash"></i>
+                                    <span>Población total</span>
+                                </button>
+                        </div>
 
-        <!-- Submenú: Población -->
-        <div class="dropdown plazas-dropdown">
-            <div class="layer-toggle-button">
-                <span>Edad</span>
-                <i class="bi bi-chevron-compact-down chevron-icon"></i>
-            </div>
-            <div class="plazas-subcategorias">
+                        <!-- Submenú: Población -->
+                        <div class="dropdown plazas-dropdown">
+                            <button class="layer-toggle-button">
+                                <span>  Edad</span>
+                                <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                            </button>
+                            <div class="plazas-subcategorias">
 
-                    <button id="toggleedadninoBtn" class="layer-toggle-button">
-                        <i id="edadninoIcon" class="bi bi-eye-slash"></i>
-                        <span>Niño / Adolescente (0 a 19 años)</span>
-                    </button>
+                                    <button id="toggleedadninoBtn" class="btn-tipologia">
+                                        <i id="edadninoIcon" class="bi bi-eye-slash"></i>
+                                        <span>Niño / Adolescente (0 a 19 años)</span>
+                                    </button>
 
-                    <button id="toggleedadjovenadultoBtn" class="layer-toggle-button">
-                        <i id="edadjovenadultoIcon" class="bi bi-eye-slash"></i>
-                        <span>Joven Adulto (20 a 39 años)</span>
-                    </button>
+                                    <button id="toggleedadjovenadultoBtn" class="btn-tipologia">
+                                        <i id="edadjovenadultoIcon" class="bi bi-eye-slash"></i>
+                                        <span>Joven Adulto (20 a 39 años)</span>
+                                    </button>
 
-                    <button id="toggleedadadultoBtn" class="layer-toggle-button">
-                        <i id="edadadultoIcon" class="bi bi-eye-slash"></i>
-                        <span>Adulto (40 a 59 años)</span>
-                    </button>
+                                    <button id="toggleedadadultoBtn" class="btn-tipologia">
+                                        <i id="edadadultoIcon" class="bi bi-eye-slash"></i>
+                                        <span>Adulto (40 a 59 años)</span>
+                                    </button>
 
-                    <button id="toggleedadadultomayorBtn" class="layer-toggle-button">
-                        <i id="edadadultomayorIcon" class="bi bi-eye-slash"></i>
-                        <span>Adulto Mayor (60 a 79 años)</span>
-                    </button>
+                                    <button id="toggleedadadultomayorBtn" class="btn-tipologia">
+                                        <i id="edadadultomayorIcon" class="bi bi-eye-slash"></i>
+                                        <span>Adulto Mayor (60 a 79 años)</span>
+                                    </button>
 
-                    <button id="toggleedadancianoBtn" class="layer-toggle-button">
-                        <i id="edadancianoIcon" class="bi bi-eye-slash"></i>
-                        <span>Anciano (80+ años)</span>
-                    </button>
+                                    <button id="toggleedadancianoBtn" class="btn-tipologia">
+                                        <i id="edadancianoIcon" class="bi bi-eye-slash"></i>
+                                        <span>Anciano (80+ años)</span>
+                                    </button>
 
-            </div>
-        </div>
+                            </div>
+                        </div>
 
-        <!-- Submenú: Educación -->
-        <div class="dropdown plazas-dropdown">
-            <div class="layer-toggle-button">
-                <span>Educación</span>
-                <i class="bi bi-chevron-compact-down chevron-icon"></i>
-            </div>
-            <div class="plazas-subcategorias">
-                <button id="togglecensoniveleducativoBtn" class="layer-toggle-button">
-                    <i id="censoniveleducativoIcon" class="bi bi-eye-slash"></i>
-                    <span>Máximo nivel de instrucción alcanzado</span>
-                </button>
+                        <!-- Submenú: Educación -->
+                        <div class="dropdown plazas-dropdown">
+                            <button class="layer-toggle-button">
+                                <span>Educación</span>
+                                <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                            </button>
+                            <div class="plazas-subcategorias">
+                                <button id="togglecensoniveleducativoBtn" class="btn-tipologia">
+                                    <i id="censoniveleducativoIcon" class="bi bi-eye-slash"></i>
+                                    <span>Máximo nivel de instrucción alcanzado</span>
+                                </button>
 
-                <button id="togglecensoniveleducativo2Btn" class="layer-toggle-button">
-                    <i id="censoniveleducativo2Icon" class="bi bi-eye-slash"></i>
-                    <span>Estudios superiores (completos/incompletos)</span>
-                </button>
-            </div>
-        </div>
-        <!-- Fin Submenú: Educación -->
+                                <button id="togglecensoniveleducativo2Btn" class="btn-tipologia">
+                                    <i id="censoniveleducativo2Icon" class="bi bi-eye-slash"></i>
+                                    <span>Estudios superiores (completos/incompletos)</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Fin Submenú: Educación -->
 
-        <!-- Submenú: Tecnología -->
-        <div class="dropdown plazas-dropdown">
-            <div class="layer-toggle-button">
-                <span>Acceso a tecnologías</span>
-                <i class="bi bi-chevron-compact-down chevron-icon"></i>
-            </div>
-            <div class="plazas-subcategorias">
-                <button id="toggleinternetnoBtn" class="layer-toggle-button">
-                    <i id="internetnoIcon" class="bi bi-eye-slash"></i>
-                    <span>Hogares sin internet</span>
-                </button>
-            </div>
-        </div>
-        <!-- Fin Submenú: Tecnología -->
+                        <!-- Submenú: Tecnología -->
+                        <div class="dropdown plazas-dropdown">
+                            <button class="layer-toggle-button">
+                                <span>Acceso a tecnologías</span>
+                                <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                            </button>
+                            <div class="plazas-subcategorias">
+                                <button id="toggleinternetnoBtn" class="btn-tipologia">
+                                    <i id="internetnoIcon" class="bi bi-eye-slash"></i>
+                                    <span>Hogares sin internet</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Fin Submenú: Tecnología -->
 
-    </div>
-</div>
-<!-- Fin CENSO -->
+                    </div>
+                </div>
+                <!-- Fin CENSO -->
             
 
                 <!-- Sección ESPACIOS URBANOS -->
@@ -212,8 +220,7 @@
                         <i class="bi bi-chevron-compact-down chevron-icon"></i>
                     </div>
 
-                    <div class="category-content"><div class="dropdown plazas-dropdown">
-                        
+                    <div class="category-content">
 
                         <div class="dropdown plazas-dropdown">
                             <button id="togglePlazasBtn" class="layer-toggle-button">
@@ -241,14 +248,14 @@
                             </button>
                         </div>
 
-                    </div></div>
+                    </div>
                 </div> <!-- FIN ESPACIOS URBANOS -->
 
             <!-- Inicio ELECCIONES -->
             <div class="category">
             <div class="category-header">
                 <div class="category-left">
-                <button id="eleccionesToggle" class="eye-button">
+                <button id="eleccionesToggles" class="eye-button">
                     <i id="eleccionesToggleIcon" class="bi bi-map-fill"></i>
                 </button>
                 <span class="category-title">ELECCIONES</span>
@@ -269,55 +276,56 @@
                 <div class="plazas-subcategorias">
 
                     <!-- Submenú: Por ganador -->
-                    <div class="dropdown">
-                    <button id="togglePorGanadorBtn" class="btn-tipologia">
-                        <span class="tipologia-texto">Ganador por circuito</span>
-                        <i class="bi bi-chevron-compact-down chevron-icon"></i>
-                    </button>
-
-                    <div class="dropdown-content">
-                        <button id="togglesegundavueltanacional23Btn" class="filter-item">
-                        <i id="segundavueltanacional23Icon" class="bi bi-eye-slash"></i>
-                        <span class="tipologia-texto">Nacional - Segunda Vuelta</span>
+                    <div class="dropdown plazas-dropdown">
+                        <button id="togglePorGanadorBtn" class="btn-tipologia">
+                            <span class="tipologia-texto">Ganador por circuito</span>
+                            <i class="bi bi-chevron-compact-down chevron-icon"></i>
                         </button>
 
-                        <button id="toggle2023GeneralesNacionalBtn" class="filter-item">
-                        <i id="generales2023Icon" class="bi bi-eye-slash"></i>
-                        <span class="tipologia-texto">Nacional - Generales</span>
-                        </button>
+                        <div class="plazas-subcategorias">
+                            <button id="togglesegundavueltanacional23Btn" class="bisnieto">
+                            <i id="segundavueltanacional23Icon" class="bi bi-eye-slash"></i>
+                            <span class="tipologia-texto">Nacional - Segunda Vuelta</span>
+                            </button>
 
-                        <button id="toggle2023GeneralProvincialBtn" class="filter-item">
-                        <i id="generalprovincial2023Icon" class="bi bi-eye-slash"></i>
-                        <span class="tipologia-texto">Provincial - Generales</span>
-                        </button>
+                            <button id="toggle2023GeneralesNacionalBtn" class="bisnieto">
+                            <i id="generales2023Icon" class="bi bi-eye-slash"></i>
+                            <span class="tipologia-texto">Nacional - Generales</span>
+                            </button>
 
-                        <button id="toggle2023GeneralMunicipalBtn" class="filter-item">
-                        <i id="generalmunicipal2023Icon" class="bi bi-eye-slash"></i>
-                        <span class="tipologia-texto">Municipal - Generales</span>
-                        </button>
+                            <button id="toggle2023GeneralProvincialBtn" class="bisnieto">
+                            <i id="generalprovincial2023Icon" class="bi bi-eye-slash"></i>
+                            <span class="tipologia-texto">Provincial - Generales</span>
+                            </button>
 
-                    </div>
+                            <button id="toggle2023GeneralMunicipalBtn" class="bisnieto">
+                            <i id="generalmunicipal2023Icon" class="bi bi-eye-slash"></i>
+                            <span class="tipologia-texto">Municipal - Generales</span>
+                            </button>
+
+                        </div>
                     </div>
                     <!-- Fin submenú Por ganador -->
 
+                        
                     <!-- Submenú: Por ganador -->
-                    <div class="dropdown">
-                    <button id="togglePorGanadorBtn" class="btn-tipologia">
-                        <span class="tipologia-texto">Agrupación por circuito</span>
-                        <i class="bi bi-chevron-compact-down chevron-icon"></i>
-                    </button>
-
-                    <div class="dropdown-content">
-                        <button id="toggle2023GeneralesNacionalLLABtn" class="filter-item">
-                        <i id="generales2023llaIcon" class="bi bi-eye-slash"></i>
-                        <span class="tipologia-texto">LLA - Nacional - Generales</span>
+                    <div class="dropdown plazas-dropdown">
+                        <button id="togglePorGanadorBtn" class="btn-tipologia">
+                            <span class="tipologia-texto">Agrupación por circuito</span>
+                            <i class="bi bi-chevron-compact-down chevron-icon"></i>
                         </button>
 
-                        <button id="toggle2023GeneralesNacionalJXCBtn" class="filter-item">
-                        <i id="generales2023jxcIcon" class="bi bi-eye-slash"></i>
-                        <span class="tipologia-texto">JxC - Nacional - Generales</span>
-                        </button>
-                    </div>
+                        <div class="plazas-subcategorias">
+                            <button id="toggle2023GeneralesNacionalLLABtn" class="bisnieto">
+                            <i id="generales2023llaIcon" class="bi bi-eye-slash"></i>
+                            <span class="tipologia-texto">LLA - Nacional - Generales</span>
+                            </button>
+
+                            <button id="toggle2023GeneralesNacionalJXCBtn" class="bisnieto">
+                            <i id="generales2023jxcIcon" class="bi bi-eye-slash"></i>
+                            <span class="tipologia-texto">JxC - Nacional - Generales</span>
+                            </button>
+                        </div>
                     </div>
                     <!-- Fin submenú Por ganador -->
 
@@ -344,11 +352,6 @@
                     <i class="bi bi-layers-fill"></i>
                 </button>
 
-                <!-- FILTROS ACTIVOS -->
-                <button id="toggleFiltersBtn" title="Mostrar filtros activos">
-                    <i class="bi bi-filter"></i>
-                </button>
-
             </div>
         
             <!-- Capas a agregar -->
@@ -362,6 +365,9 @@
             <script src="layers/CIRCUITOS_0.js"></script>
             <script src="layers/intersecciones.js"></script>
             <script src="layers/callejero_normalizado.js"></script>
+
+            <script src="js/funciones/seleccionExclusiva.js" defer></script>
+
 
             <script src="js/datosVotos.js"></script>
             <script src="js/censoNiveleducativo.js"></script>
@@ -393,12 +399,7 @@
                 <a href="#" id="popup-comerciales-closer" >✖</a>
                 <div id="popup-comerciales-content"></div>
             </div> <!-- FIN POPUT cc -->
-
-        <div id="filtros-activos">
-        <strong>Capas activas:</strong>
-        <span id="texto-filtros-activos">Ninguno</span>
-        </div>
-                
+        </div>  
     </body>
     
     <script>
@@ -406,5 +407,4 @@
         window.location.href = "login.html";
     }
     </script>
-
 </html>

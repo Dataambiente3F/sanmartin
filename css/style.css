@@ -1,1350 +1,509 @@
-
-/*  ===========================================================
-    1. RESET Y FUENTES
-    =========================================================== */
-    @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Julius+Sans+One&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-
-    body, html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        font-family: 'Lato', sans-serif;
-        }
-
-    body {
-        display: flex; /* <== Esto hace que los elementos hijos (por ejemplo, #sidebar y #map) se dispongan en línea (lado a lado). */
-        margin: 0; /* <== Elimina el margen por defecto del navegador. */
-        font-family: 'Lato', sans-serif; /* <== Define la fuente principal para el texto. */
-        font-size: 12px; /* <== Tamaño de fuente base para el documento. */
-        font-weight: 300; /* <== Peso de la fuente (ligero). */
-        color: #6e675e;  /* <== Color del texto. */
-        flex-direction: column; /* <== Cambiamos la dirección del flex para apilar la barra de título y el contenido principal */
-        height: 100vh; /* <== Asegura que el body ocupe toda la altura de la ventana */
-    }
-
-    /* ===========================================================
-    2. LAYOUT GENERAL: Sidebar, Mapa y Contenedores
-    =========================================================== */
-    
-    /* Contenedor principal para la sidebar y el mapa */
-    #main-container {
-        display: flex; /* <== Vuelve a habilitar el flex para la sidebar y el mapa */
-        flex-grow: 1; /* <== Permite que este contenedor crezca y ocupe el espacio restante */
-        height: calc(100vh - 60px); /* ajusta según la altura de tu top-title-bar */
-        overflow: hidden; /* oculta cualquier desborde */
-    }
-
-    /* Contenedor lateral que organiza y muestra las opciones del menú */
-    #sidebar {
-        width: 350px;
-        background: #1d1d1d;
-        padding: 0px;
-        margin: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        height: 100%;
-        border-right: none;
-        position: relative; /* Necesario para que el ::after se posicione respecto a este */
-    }
-
-    #sidebar::-webkit-scrollbar {
-    width: 6px;
-    }
-
-    #sidebar::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    }
-
-    #sidebar::-webkit-scrollbar-track {
-    background: transparent;
-    }
-
-    #sidebar::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0; 
-        width: 0px;
-        height: 100%;
-        background: linear-gradient(to right, rgba(244, 244, 244, 0), rgba(0, 0, 0, 0));
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    /* ===========================================================
-    3. BARRA SUPERIOR (TÍTULO + LOGO)
-    =========================================================== */
-    /* Barra de título superior */
-    #top-title-bar {
-        background-color: #141414;
-        color: white;
-        padding: 10px 20px; /* Ajustamos el padding vertical */
-        font-family: 'Lato', sans-serif;
-        font-size: 20px;
-        font-weight: 400;
-        text-transform: none;
-        letter-spacing: 1px;
-        width: 100%;
-        box-sizing: border-box;
-
-        /* --- INICIO DE LA MODIFICACIÓN --- */
-        display: flex;
-        align-items: center; /* Centra verticalmente el texto y el logo */
-        justify-content: space-between; /* Empuja el texto a la izq. y el logo a la der. */
-        /* --- FIN DE LA MODIFICACIÓN --- */
-    }
-
-    #logo-3f {
-    height: 40px; /* Altura del logo, puedes ajustarla */
-    width: auto;  /* El ancho se ajusta automáticamente */
-    }
-   
-   /* ===========================================================
-   4. FILTROS - FILA INDIVIDUAL (CHECKBOX + TEXTO + BOTÓN)
+/* ===========================================================
+   1. RESET Y FUENTES
    =========================================================== */
-    label.filter-item {
-        display: grid;
-        grid-template-columns: auto 1fr auto; /* checkbox, texto, botón */
-        align-items: center;
-        padding: 4px 8px;
-        gap: 6px;
-        background-color: rgba(255,255,255,0.3);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    /* ===========================================================
-   5. MÁS SECCIONES A AGREGAR...
-   =========================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Julius+Sans+One&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-/* Área principal que exhibe el mapa interactivo de OpenLayers */
-    #map {
-        flex: 1;
-        height: 100%; /* <== El mapa ocupa toda la altura disponible dentro del #main-container */
-        position: relative; /* 👈 Esto es clave para que el ::before funcione */
-    }
-
-    #map::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 20px; /* Ancho del degradado */
-        background: linear-gradient(to right, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0)); /* Desde transparente a gris */
-        z-index: 5; /* Que quede sobre el mapa pero debajo de cualquier control */
-        pointer-events: none; /* No interfiere con los clics en el mapa */
-    }
-
-    .sidebar {
-        /* Que ocupe toda la altura visible */
-        height: 100vh;
-
-
-        /* Si su contenido excede, pone scroll vertical */
-        overflow-y: auto;
-
-        /* (Opcional) Para que el scrollbar no se meta sobre el contenido */
-        box-sizing: border-box;
-        padding-right: 8px; /* ajusta según tu diseño */
-    }
-
-    #sidebar::-webkit-scrollbar { width: 6px; }
-    #sidebar::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-    #sidebar::-webkit-scrollbar-track { background: transparent; }
-
-
-    
-
-
-    /* PARTIDO LOCALIDADES Menú desplegable interactivo para seleccionar y filtrar opciones. */
-    .dropdown {
-        width: 100%; /* <== El botón ocupa el 100% del ancho del contenedor, haciendo que se vea uniforme. */
-        padding: 0px; /* <== Espaciado interno para que el texto tenga buen margen. */
-        font-family: 'Lato', sans-serif;
-        font-size: 14px; /* <== Tamaño de fuente para el botón. */
-        font-weight: 300; /* <== Peso leve para el texto del botón. */
-        padding-left: 0px; /* <== Espaciado adicional a la izquierda. */
-        padding-right: 0px; /* <== Espaciado adicional a la derecha. */
-        background: #ff0000; /* <== Fondo claro para el botón. */
-        border-radius: 0px;
-        border: none; /* <== Sin borde para un look más plano. */
-        cursor: pointer;
-        text-align: left;
-        margin-top: 0px;
-        margin-bottom: 0px;
-        border-top: 2px solid rgba(82,82,82);
-    }
-
-    /* Tipología Estiliza los botones que disparan la apertura del menú desplegable. TIPOLOGIA*/
-    .dropdown button {
-        width: 100%;
-        display: flex; /* ← Flexbox para alinear texto + icono */
-        align-items: center;
-        justify-content: space-between; /* ← Texto a la izquierda, ícono a la derecha */
-        padding: 10px 0px; /* Mantenimiento de Higiene*/
-        background: none;
-        border: none;
-        color: #e9e9e9;
-        font-size: 14px;
-        cursor: pointer;
-        text-align: left;
-}
-
-    .dropdown-content.show {
-    display: block;
-}
-
-    /* Da formato a cada etiqueta (opción) interna del dropdown. */
-    .dropdown-content label {
-        display: block;
-        margin-bottom: 0px;
-    }
-
-    /* MENÚ DESPLEGABLE TERCIARIO Muestra el contenido del dropdown cuando el contenedor tiene la clase "active". */
-    .dropdown.active .dropdown-content {
-        display: block;
-        background-color: none;
-        flex-direction: column;
-    }
-
-    /* Ajusta el estilo de la atribución interna de OpenLayers. */
-    .ol-attribution {
-        position: absolute !important;
-        bottom: 4px !important;
-        right: 10px !important;
-        background: none !important;
-        padding: 0px;
-        font-size: 12px;
-        border-radius: 5px;
-    }
-
-    /* Oculta los botones que puedan incluirse en la atribución. */
-    .ol-attribution button {
-        display: none !important;
-
-    }
-
-
-
-    .category-left {
-    display: flex;
-    align-items: center;
-    gap: 100px;
-    overflow: hidden;
-    flex: 1 1 auto;
-    min-width: 0; /* Importante para que el texto colapse si es necesario */
-}
-
-.category-title {
-    white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-
-
-
-
-
-    .category-content {
-  background: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
+html, body {
+  margin: 0;
+  padding: 0;
   width: 100%;
-  display: none;
+  height: 100%;
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  color: #6e675e;
+  overflow: hidden;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ===========================================================
+   2. LAYOUT GENERAL
+   =========================================================== */
+#main-container {
+  display: flex;
+  flex-grow: 1;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+#sidebar {
+  width: 350px;
+  background: #1d1d1d;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  position: relative;
+}
+
+#sidebar::-webkit-scrollbar { width: 6px; }
+#sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 4px;
+}
+#sidebar::-webkit-scrollbar-track { background: transparent; }
+
+#map {
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
+#map::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 20px; height: 100%;
+  background: linear-gradient(to right, rgba(0,0,0,0.05), transparent);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ===========================================================
+   3. BARRA SUPERIOR
+   =========================================================== */
+#top-title-bar {
+  background: #141414;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 20px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: 1px;
+}
+#logo-3f {
+  height: 40px;
+  width: auto;
+}
+
+/* ===========================================================
+   4. CATEGORÍAS
+   =========================================================== */
+.category {
+  border-bottom: 1px solid rgba(110,103,94,0.5);
+}
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 60px;
+  padding: 0;
+  color: #e9e9e9;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.category.active > .category-header {
+  background-color: #3a3a3a;
+}
+.category-content {
+  display: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
 .category.active .category-content {
   display: block;
 }
-
-    /* bOTÓN OJO */
-.eye-button {
-    background: none;
-    border: none;
-    margin: 0;
-    display: flex;
-    align-items: center; /* CENTRAR dentro del botón */
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-}
-
-/* Icono adentro (ya sea i o img) */
-.eye-button i, .eye-button img {
-    width: 20px;
-    height: 20px;
-    display: block;
-    object-fit: contain;
-}
-
-.eye-button i {
-  font-size: 18px;
-  vertical-align: middle;
-  line-height: 1;
-}
-
-    .dropdown-content .filter-text { /*PLAZA, PLAZOLETA*/
-        display: inline-block;
-        justify-content: space-between;
-        font-size: 12px;
-        flex: 1;
-        min-width: 40%; /* agregado para que nunca colapse a 0 */
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: normal;
-        margin: 0 0px;
-        color: rgba(255, 255, 255, 0.8); /* si seguís con fondo oscuro */
-    }
-
-    /**
-     * INICIO DE LA CORRECCIÓN
-     * El botón "Aislar" se alinea a la derecha.
-     */
-    .dropdown-content .select-only-btn { /* BOTÓN Solamente Aislar*/
-        background: none;
-        margin-left: 3%;
-        margin-right: 6%;
-        color: rgba(255, 255, 255, 0.6);
-        flex-shrink: 0; /* Evita que el botón se encoja */
-        font-size: 10px;
-        padding: 0;
-        border: none;
-        cursor: pointer;
-    }
-    /**
-     * FIN DE LA CORRECCIÓN
-     */
-
-/* Oculta el checkbox visualmente solo en "Seleccionar Todos" */
-.select-todos-label input[type="checkbox"] {
-  display: none;
-}
-
-/* Seleccionar Todos Estilo visual personalizado (sin recuadro) */
-.select-todos-label {
-  display: block;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 6px 12px;
-  font-size: 10px;
-  background-color: #898989;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.4); /* lÍNEA separadora seleccionar todos */
-}
-
-
-.category::after {
-  content: "";
-  display: block;
-  height: 1px;
-  background-color: rgba(110, 103, 94, 0.5);
-  margin-top: 0px; /* opcional: espacio antes de la línea */
-  margin: 0;
-}
-
-
-
-
-
-.bi {
-  color: rgb(255, 255, 255);
-  font-size: 16px;
-}
-
-
-.label-check-text {
-    color: rgba(201,201,201,.95);
-    text-align: left;
-    margin-left: 8px; /* ESPACIO CHECK PARTIDO*/
-    flex-grow: 1;
-    font-size: 14px;
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-    text-align: left;
-    flex-grow: 1;
-}
-
-#filtros-activos {
-    position: absolute;
-    top: 140px; /* Posición debajo de los nuevos íconos */
-    right: 20px;
-    background-color: rgba(29, 29, 29, 0.9);
-    color: white;
-    padding: 8px 12px;
-    font-size: 13px;
-    border-radius: 6px;
-    z-index: 1000;
-    font-family: 'Lato', sans-serif;
-    max-width: 250px;
-    line-height: 1.4;
-    display: none; /* ¡Importante! Oculto por defecto */
-}
-
-/* Esta nueva clase lo hará visible cuando se la agreguemos con JavaScript */
-#filtros-activos.visible {
-    display: block;
-}
-
-#searchPlazaInput::placeholder {
-    color: #e6e6e6 !important;
-    opacity: 1 !important;
-}
-
-#searchSuggestions {
-  position: absolute !important;
-  top: 100% !important;
-  left: 0;
-  right: 0;
-  background-color: #757575;
-  z-index: 1000;
-  max-height: 200px;
-  overflow-y: auto;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-#searchSuggestions div {
-  background-color: #757575 !important;
-  color: white !important;
-  padding: 8px 10px !important;
-  font-size: 14px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-}
-
-#searchSuggestions div:hover {
-  background-color: #5e5e5e !important;
-}
-
-
-
-.category-header .eye-button {
-  width: 10%;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
-}
-
-
-
-.category-header > div {
+.category-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 16px;
+}
+.category-title {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Efecto hover para el encabezado de la categoría */
+.category:not(.active) > .category-header:hover {
+    background-color: #2f2f2f; /* Un gris oscuro sutil para el hover */
+}
 
-
-/* Tipologia Mnat de Higiene*/
-.btn-tipologia {
-  background-color: #6b6b6b !important;
-  min-height: 35px; /* Ajustá este valor según lo que necesites */
+/* ===========================================================
+   5.0 BOTONES DE OJO PADRE
+   =========================================================== */
+.eye-button {
+  background: none;
+  border: none;
+  width: 30px; height: 30px;
+  padding-left: 14px;
   display: flex;
   align-items: center;
-  padding: 0px px;
-  
+  justify-content: center;
+  cursor: pointer;
+}
+.eye-button i {
+  font-size: 18px;
 }
 
-
-hr {
-  border: 0;
-  height: 1px;
-  background-color: #5a5a5a; /* Un color por defecto */
-  margin: 0 !important;
-  padding: 0 !important;
+/* Permite mover el ícono desde su posición original */
+.category-header .eye-button i {
+    position: relative; /* Permite mover el ícono desde su posición original */
+    top: 2px;
 }
 
-.address-search-section-header {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espacio entre el icono y el texto del título */
-    color: #e9e9e9; /* Color del texto del título */
-    font-size: 14px; /* Tamaño del texto del título */
-    font-weight: 500; /* Peso del texto del título */
-    margin-bottom: 12px; /* Espacio entre el título y el campo de input */
+/* Color gris para los iconos de categoría no activos */
+.category-header .eye-button .bi:not([class*="-fill"]):not(.bi-chevron-compact-down):not(.bi-chevron-compact-up) {
+color: #505050 !important; 
 }
 
-.address-search-section-header .bi-geo-alt-fill {
-    font-size: 18px; /* Tamaño del icono */
-}
-
-.address-search-section {
-    position: absolute;
-    top: 20px;
-    left: 10px;
-    z-index: 1001;
-    width: 350px;
-    height: 40px; /* Altura final y consistente con el menú */
-    background-color: transparent;
-    border-radius: 4px;
-    padding: 0; /* Importante: quitamos el padding de aquí */
-    box-sizing: border-box;
-    display: flex; /* Usaremos flex para centrar el contenido */
-    align-items: center; /* Centra verticalmente lo que esté adentro */
-}
-
-/* 2. El div que envuelve al campo de texto */
-.address-search-section-content {
-    width: 100%;
-    padding: 0 15px; /* Aplicamos el espaciado lateral aquí */
-    box-sizing: border-box;
-}
-
-/* 3. El campo de texto en sí */
-.address-search-section-content input[type="text"]#addressSearchInput {
-    all: unset;
-    width: 100%;
-    background-color: rgba(29, 29, 29, 0.8);
-    color: white;
-    padding: 8px 10px;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-    border: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* <== SOMBRA AÑADIDA */
-    height: 36px;
-}
-
-/* 4. El texto del placeholder */
-#addressSearchInput::placeholder {
-    color: white !important;
-    opacity: 0.8 !important;
+.category-header .eye-button .bi[class*="-fill"] {
+color: #ffffff !important; /* Color blanco brillante para indicar que está activa */
 }
 
 
 
-
-
-
-
-.dropdown-content .filter-item .select-only-btn {
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
-    margin-left: auto !important; /* Este ya lo tenés: mantiene el botón pegado a la derecha */
-    
-    font-size: 10px !important;
-    color: rgba(255, 255, 255, 0.6) !important;
-    background: none !important;
-    cursor: pointer !important;
-    
-    border-style: none none none solid !important;
-    border-width: 1px !important;
-    border-color: rgba(255, 255, 255, 0.25) !important;
-
-    /* AJUSTÁ ESTE */
-    padding: 8px 16px !important; /* Cambiá 12px por un valor mayor si querés que quede más separado */
-}
-
-#resetPageBtn {
-    position: absolute;
-    top: 20px;
-    right: 120px; /* <== NUEVO VALOR */
-    width: 40px;
-    height: 40px;
-    background-color: rgba(29, 29, 29, 0.8);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    z-index: 1001;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    transition: background-color 0.2s;
-}
-
-#resetPageBtn:hover {
-    background-color: rgba(50, 50, 50, 0.95);
-}
-
-#resetPageBtn i {
-    font-size: 20px; /* Tamaño del ícono */
-}
-
-/* Estilos para el nuevo botón de mostrar filtros */
-#toggleFiltersBtn {
-    position: absolute;
-    top: 20px;
-    right: 20px; /* <== NUEVO VALOR */
-    width: 40px;
-    height: 40px;
-    background-color: rgba(29, 29, 29, 0.8);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    z-index: 1001;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    transition: background-color 0.2s;
-}
-
-
-#toggleMapStyleBtn {
-    position: absolute;
-    top: 20px;
-    right: 70px; /* Posición intermedia */
-    width: 40px;
-    height: 40px;
-    background-color: rgba(29, 29, 29, 0.8);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    z-index: 1001;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    transition: background-color 0.2s;
-}
-
-#toggleMapStyleBtn:hover {
-    background-color: rgba(50, 50, 50, 0.95);
-}
-
-#toggleMapStyleBtn i {
-    font-size: 18px; /* Un poco más pequeño para que entre bien */
-}
-
-#toggleFiltersBtn:hover {
-    background-color: rgba(50, 50, 50, 0.95);
-}
-
-#toggleFiltersBtn i {
-    font-size: 20px;
-}
-
-.ol-zoom,
-.ol-rotate {
-    display: none !important;
-}
-
-.layer-toggle-button {
-    /* ----- Apariencia General ----- */
-    background-color: #f8f9fa; /* Un gris muy claro, color de fondo común para controles */
-    border: 1px solid #dee2e6; /* Un borde sutil para definir el botón */
-    color: #212529;            /* Color de texto oscuro estándar */
-    border-radius: 0;     /* Bordes redondeados para suavizar */
-    width: 100%;               /* Para que ocupe todo el ancho del panel */
-    margin-bottom: 5px;        /* Un pequeño margen para separar los botones entre sí */
-    height: 40px;
-    
-    
-    /* ----- Alineación y Comportamiento ----- */
-    display: flex;             /* ¡La clave! Permite alinear el ícono y el texto horizontalmente */
-    align-items: center;       /* Centra verticalmente el contenido */
-    text-align: left;          /* Alinea el texto a la izquierda */
-    cursor: pointer;           /* Muestra la manito para indicar que es clickeable */
-    
-    /* ----- Transiciones y Texto ----- */
-    transition: background-color 0.15s ease-in-out; /* Transición suave para el hover */
-    font-size: 1rem;           /* 16px, un tamaño de fuente estándar */
-    font-weight: 500;          /* Un poco más de grosor en la letra */
-}
-
-/* Efecto al pasar el mouse por encima para dar feedback visual */
-.layer-toggle-button:hover {
-    background-color: none; /* Un gris un poco más oscuro al pasar el mouse */
-}
-
-/* Estilo para el ícono del ojo (bi-eye-fill / bi-eye-slash) */
-.layer-toggle-button i {
-    font-size: 1.2rem;       /* Hacemos el ícono un 20% más grande que el texto */
-    margin-right: 12px;      /* Espacio entre el ícono y el texto */
-    width: 20px;             /* Ancho fijo para que el texto no se mueva cuando cambia el ícono */
-    text-align: center;
-}
-
-/* Estilo para el texto (el span que contiene "Límite del Partido", etc.) */
-.layer-toggle-button span {
-    flex-grow: 1; /* Hace que el texto ocupe todo el espacio sobrante */
-}
-
-
+/* ===========================================================
+   5.1 BOTONES DE OJO / CHEVRON
+   =========================================================== */
 /*
-  Esta regla agrupa los íconos que representan un estado 'inactivo'
-  y les asigna el mismo color gris para unificar la interfaz.
+  Estilo específico para los íconos de chevron
+  que están DENTRO de los encabezados de categoría principal.
 */
-.bi-map,       /* El ícono de la categoría 'Generales' apagada */
-.bi-tree,      /* El ícono de la categoría 'Espacios Urbanos' apagada */
-.bi-lightbulb, /* El ícono de la categoría 'Alumbrado' apagada */
-.bi-droplet,   /* El ícono de la categoría 'Hidráulica' apagada */
-.bi-people,    /* El ícono de la categoría 'Alta Transitabilidad' apagada */
-.bi-trash {    /* El ícono de la categoría 'Higiene Urbana' apagada */
-    color: rgba(255, 255, 255, 0.2) !important; /* Un gris medio para indicar inactividad */
+.category-header .chevron-icon {
+    color: #c0c0c0;      /* Color del chevron (un gris claro) */
+    font-size: 18px;    /* Tamaño del ícono */
+    margin-right: 15px; /* Espacio desde el borde derecho */
+    position: relative;
+    top: 2px;           /* Ajuste vertical (2px hacia abajo) */
+    transition: transform 0.2s ease-in-out;
 }
 
-
-
-.checkbox-container {
-    display: flex;            /* Alinear checkbox y texto horizontalmente */
-    align-items: center;      /* Centrar verticalmente */
-    padding: 8px 12px;        /* Espaciado interno, similar a los otros botones */
-    cursor: pointer;          /* El cursor se vuelve una mano en toda el área */
-    background-color: #f0f0f0;/* Color de fondo gris claro */
-    transition: background-color 0.2s ease; /* Transición suave para el hover */
+/* ===========================================================
+   7. DROPDOWNS
+   =========================================================== */
+.dropdown {
+  width: 100%;
+  border-top: 1px solid rgba(82,82,82); /* LINEAS DE BORDE*/
 }
-
-/* Efecto al pasar el mouse por encima */
-.checkbox-container:hover {
-    background-color: #e0e0e0; /* Un gris un poco más oscuro */
+.dropdown .chevron-icon {
+  margin-left: auto;
 }
-
-/* Estilo del checkbox */
-.checkbox-container input[type="checkbox"] {
-    margin-right: 10px;       /* Espacio entre el checkbox y el texto */
-    cursor: pointer;
-    /* Color del tilde, para que coincida con otros elementos de la UI */
-    accent-color: #5b534a;
-}
-
-/* Estilo del texto (label) */
-.checkbox-container label {
-    cursor: pointer;          /* El texto también es clickeable */
-    font-size: 14px;          /* Tamaño de letra consistente */
-    color: #333;
-}
-
-/*FONDO NIETO TIPOLOGIA*/
-.plazas-subcategorias {
+.dropdown-content {
   display: none;
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.15s ease-out;
-  padding: 0 0px;
 }
-
-.plazas-subcategorias.show {
-    max-height: 1000px;              /* Un valor lo suficientemente grande para mostrar todo el contenido */
-    padding: 0px;                   /* Padding cuando está visible */
-}
-
-
-/* Espacios verde*/
-.plazas-dropdown {
-    /* Estilo para el contenedor general del grupo de capas/filtros (ej. "Espacios Verdes", "Luminarias", "Centros Comerciales") */
-    margin-bottom: 10px;
-    margin-top: 5px;
-    border-radius: 0px;
-    border: 1px solid #4a4a4a; /* Borde sutil para separar los grupos */
-    background-color:none; /* Fondo ligeramente diferente para el dropdown principal */
-}
-
-/* Botones principales dentro de plazas-dropdown (ej. "Espacios Verdes", "Luminarias", "Centros Comerciales") */
-.plazas-dropdown .layer-toggle-button {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 6px;
-    background-color: #525252; /* Fondo del botón de la capa */
-    color: rgb(255, 255, 255, 0.9);
-    border: none;
-    cursor: pointer;
-    font-size: 1em;
-    text-align: left;
-    margin-bottom: 0; /* Resetear cualquier margen */
-    border-radius:0px !important;
-}
-
-.plazas-dropdown .layer-toggle-button:hover {
-    background-color: #555;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Estilo para el submenú de Luminarias cuando se despliega */
-.luminarias-subcategorias {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out; /* Esta es la transición suave que quieres mantener */
-    background-color: #424242; /* Fondo para el contenido desplegado */
-    padding: 0 10px; /* Padding para el contenido dentro del submenú */
-}
-
-.luminarias-subcategorias.show {
-    max-height: 500px; /* O un valor que asegure que todo el contenido sea visible */
-    padding: 10px; /* Ajusta el padding cuando está visible */
-}
-
-/* Estilos para los botones de "Tipología", "Tipo de artefacto", etc. (btn-tipologia) */
-.plazas-dropdown .dropdown .btn-tipologia {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0px 0px;
-    background-color: #555; /* Fondo para los sub-botones de filtros */
-    color: white;
-    border: none;
-    cursor: pointer;
-    text-align: left;
-    font-size: 0.95em;
-    border-radius: 0px;
-    margin-top: 0px; /* Espacio entre estos botones */
-    border-bottom: none;
-}
-
-.plazas-dropdown .dropdown .btn-tipologia:hover {
-    background-color: #666;
-}
-
-
-/* Seleccionar Todos Contenido de los dropdowns de filtros Tipolgia Plazoleta (dropdown-content) */
-.plazas-dropdown .dropdown-content {
-    background-color: #898989; /* Fondo claro para el contenido de los filtros */
-    border: 0px solid #ddd;
-    padding: 0px;
-    margin-top: 0x;
-    color: #333; /* Color de texto oscuro para los filtros */
-    border-radius: 0px;
-    display: none; /* Oculto por defecto, JS maneja la clase 'active' */
-}
-
-.dropdown.active > .dropdown-content {
+.dropdown.active .dropdown-content {
   display: block;
-  max-height: 1000px; /* suficiente para el contenido */
-  padding: 0px;       /* opcional */
+  max-height: 1000px;
+}
+.plazas-subcategorias {
+  display: none;
+}
+.dropdown.active > .plazas-subcategorias {
+  display: block;
+  max-height: 1000px;
 }
 
-.plazas-dropdown .dropdown.active > .dropdown-content {
-    display: block; /* Muestra el contenido cuando el dropdown está activo */
+/* ===========================================================
+   8. FILTROS
+   =========================================================== */
+.filter-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.filter-item:hover { background-color: #555; }
+.filter-text {
+  flex: 1;
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
 }
 
-/* Estilos para los ítems de filtro (checkboxes y texto) */
-.plazas-dropdown .filter-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0px;
-    height: 30px; /*Altura Plazoleta*/
-    padding: 3px 0;
+/* ===========================================================
+   9. BOTONES FLOTEANTES
+   =========================================================== */
+#resetPageBtn,
+#toggleFiltersBtn,
+#toggleMapStyleBtn {
+  position: absolute;
+  top: 20px;
+  width: 40px; height: 40px;
+  background: rgba(29,29,29,0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  z-index: 1001;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: background-color 0.2s;
 }
-
-.plazas-dropdown .filter-item input[type="checkbox"] {
-    margin-right: 8px;
-    accent-color: #007bff; /* Color del checkbox, puedes ajustar */
-}
-
-.plazas-dropdown .filter-item .filter-text {
-    flex-grow: 1;
-    font-size: 0.9em;
-}
-
-.plazas-dropdown .filter-item .select-only-btn {
-    background-color: #6b6b6b;
-    color: white;
-    border: none;
-    padding: 3px 8px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 0.75em;
-    margin-left: 5px;
-}
-
-.plazas-dropdown .filter-item .select-only-btn:hover {
-    background-color: #6b6b6b;
-}
-
-/* Estilo para el "Seleccionar Todos" */
-.plazas-dropdown .select-todos-label {
-    display: block; /* Para que ocupe toda la línea */
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-.category-content .plazas-dropdown,
-.category-content .layer-toggle-button,
-.category-content hr {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-
-.category-content .plazas-dropdown,
-.category-content .layer-toggle-button {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-}
-
-/* Asegurar que el último botón no tenga margen inferior */
-.category-content .plazas-dropdown button:last-child {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-}
-
-/* Eliminar posibles márgenes del HR si sigue presente */
-.category-content hr {
-    margin: 0 !important;
-    padding: 0 !important;
+#resetPageBtn { right: 70px; }
+#toggleMapStyleBtn { right: 20px; }
+#resetPageBtn:hover,
+#toggleMapStyleBtn:hover,
+#toggleFiltersBtn:hover {
+  background-color: rgba(50,50,50,0.95);
 }
 
 
-
-/* =================================================================== */
-/* ESTILOS MODERNOS PARA POPUPS                                        */
-/* =================================================================== */
-
-.ol-popup {
-    background-color: #2c2c2c; /* No es necesario el !important aquí */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #444;
-    width: 200px;
-    color: #e9e9e9;
-    font-family: 'Lato', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    pointer-events: auto;
-    /* Las propiedades 'left' y 'bottom' han sidoeliminadas */
+/* ===========================================================
+   10. OPENLAYERS OVERRIDES
+   =========================================================== */
+.ol-zoom, .ol-rotate { display: none !important; }
+.ol-attribution {
+  position: absolute !important;
+  bottom: 4px !important;
+  right: 10px !important;
+  background: none !important;
+  font-size: 12px;
 }
+.ol-attribution button { display: none !important; }
 
-.ol-popup a[id$="-closer"] {
-    text-decoration: none;
-    position: absolute;
-    top: 0px; /* Ajuste para mejor alineación */
-    right: 0px; /* Ajuste para mejor alineación */
-    color: #aaa;
-    font-size: 18px; /* Un poco más grande para que sea más fácil de clickear */
-    line-height: 1;
-    transition: color 0.2s ease;
-}
-
-.ol-popup:after {
-    content: "";
-    position: absolute;
-    top: 100%; /* La posiciona justo debajo del popup */
-    left: 50%; /* La mueve al centro horizontal del popup */
-    transform: translateX(-50%); /* La desplaza a la izquierda la mitad de su propio ancho para centrarla perfectamente */
-    border-width: 10px;
-    border-style: solid;
-    border-color: #2c2c2c transparent transparent transparent;
-}
-
-
-.ol-popup a[id$="-closer"]:hover {
-    color: #fff;
-}
-
-#searchSuggestions div.active-suggestion {
-  background-color: #5e5e5e !important;
-  color: white !important;
-}
-
-#searchSuggestions .highlighted {
-  background-color: #424242 !important;
-  color: white !important;
-}
-
-/* --- Estilo para el placeholder del filtro de calle en Alumbrado --- */
-
-#filtroCalleInput::placeholder {
-  color: rgba(255, 255, 255, 0.7); /* Color del texto: blanco con 70% de opacidad. ¡Puedes cambiar este valor! */
-  opacity: 1; /* Necesario para asegurar la visibilidad en algunos navegadores */
-}
-
-/* --- Código adicional para máxima compatibilidad con otros navegadores --- */
-
-#filtroCalleInput::-webkit-input-placeholder { /* Chrome, Safari, Opera, Edge */
-  color: rgba(255, 255, 255, 0.7);
-}
-
-#filtroCalleInput::-moz-placeholder { /* Firefox */
-  color: rgba(255, 255, 255, 0.7);
-  opacity: 1;
-}
-
-#filtroCalleInput:-ms-input-placeholder { /* Internet Explorer 10+ */
-  color: rgba(255, 255, 255, 0.7);
-}
-
+/* ===========================================================
+   11. LOADER
+   =========================================================== */
 #loader {
   position: fixed;
-  background-color: #000;
-  z-index: 9999;
   top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100vw; height: 100vh;
+  background: #000;
+  z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 #loader img {
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   animation: spin 2s linear infinite;
-   opacity: .8;
+  opacity: .8;
 }
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
 
-.plazas-subcategorias { display: none; }
 
-.dropdown.active > .plazas-subcategorias {
-  display: block;
-  max-height: 1000px; /* o un valor suficiente para tu contenido */
-  padding: 0px;       /* opcional, según tu diseño */
+
+
+
+/* ===========================================================
+   HIJOS
+   =========================================================== */
+
+.layer-toggle-button span {
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 350 !important;
+    font-family: 'Lato', sans-serif;
+    padding-left: 14px;
 }
-
-/* ya tendrás algo similar para dropdown-content */
-.dropdown-content {
-  display: none;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.15s ease-out;
-  padding: 0 0px;
-}
-
-
-
-
-/*------------------------------- FUNCIONES GENERALES ---------------------------------*/
-    .tipologia-texto {
-        margin-left: 18px; /* ESPACIO CHECK PARTIDO*/
-        color: #c9c9c9f2;
-        text-align: left;
-        flex-grow: 1;
-        font-size: 14px;
-        font-family: 'Lato', sans-serif;
-        font-weight: 400;
-        text-align: left;
-        flex-grow: 1;
-    }
-
-    .category-header > div > span {
-    padding-top: 2%;
-    padding-left: 6px;
-    display: inline-block;
-    line-height: 1;
-    }
-
-/*------------------------------- FIN FUNCIONES GENERALES ---------------------------------*/
-
-
-/*------------------------------- GENERALES ---------------------------------*/
-
-    /* Desplegable 1 */
-    .category-header {
-        display: flex;
-        align-items: center; /* centra verticalmente */
-        justify-content: flex-start;
-        height: 60px; /* o el alto que quieras */
-        padding: 0 0px;
-        background: none;
-        color: #e9e9e9;
-        font-size: 16px;
-        cursor: pointer;
-        font-weight: 500;
-    }
-
-    /* Encabezado activo con fondo */
-    .category.active > .category-header {
-    background-color: #3a3a3a; 
-    position: relative; /* Necesario para anclar el ::before */
-    }
-
-    .category-header .eye-button i {
-        font-size: 21px;
-        width: 20px;
-        height: 20px;
-        line-height: 20px;
-        padding-left: 12px;
-        display: flex; /* ← ACÁ estaba el error: pusiste "blick" en vez de "flex" */
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        position: relative;
-        top: 4%; /* o 0 si ya están bien en vertical */
-    }
-/*------------------------------- FIN GENERALES ---------------------------------*/
-
-/*------------------------------- LIMITE DEL PARTIDO ---------------------------------*/
-
-.plazas-dropdown .layer-toggle-button .bi-eye-slash,
-.plazas-dropdown .layer-toggle-button .bi-eye-fill {
-    font-size: 1.1em;
-    margin-right: 10px;
-    margin-left: 9px;
-}
-
-.bi-eye-slash{ /* El ojo tachado de una capa individual oculta */
-    color: rgba(255, 255, 255, 0.2) !important; /* Un gris medio para indicar inactividad */
-}
-
-/*------------------------------- FIN LIMITE DEL PARTIDO ---------------------------------*/
-
-
-/*------------------------------- RESULTADOS 2023 ---------------------------------*/
-    #toggleResultados2023Btn span {
-        margin-left: 12px;  /* corrés el texto hacia la derecha */
-        font-weight: 300;   /* si querés remarcarlo más */
-        color: #ffffff;     /* cambiar color */
-    }
-
-    .category.active .category-content > .dropdown::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 8px;              /* grosor de la línea */
-        background-color: #484848; /* color de la línea */
-    }
-
-/*------------------------------- FIN RESULTADOS 2023 ---------------------------------*/
-
-
-/*------------------------------- GANADOR POR CIRCUITO ---------------------------------*/
-    
-
-    .btn-tipologia,
-    .dropdown-content label.filter-item { /* <== SECTOR AÑADIDO */
-        background-color: #777777 !important;
-        color: #ff0000 !important;
-        font-size: 14px !important; /* Ajustado a 14px para que no sea tan grande */
-        border: none; /* Quitamos el borde para un look más limpio */
-        border-bottom: 1px solid rgb(245, 245, 245, 0.1); /* Línea divisoria sutil */
-        padding: 0px 0px; /* Ajustamos el padding para que se vea bien */
-        text-align: left;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .btn-tipologia .tipologia-texto {
-        color: rgb(255, 255, 255, 0.85);
-        font-weight: 350;
-        font-size: 14px;
-        padding-left: 0px;
-        margin-left: 18px;  /* menos corrido */
-    }
-
-    .category.active .category-content .plazas-subcategorias > .dropdown::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 8px;
-        background-color: #525252;
-    }
-
-/*------------------------------- FIN GANADOR POR CIRCUITO ---------------------------------*/
-
-/*------------------------------- NACIONAL SEGUNDA VUELTA ---------------------------------*/
-    .filter-item {
-    position: relative;
-    padding-right: 10px; /* Aumenta este valor para darle más margen a la derecha (alejarlo del borde) */
+   
+.layer-toggle-button,
+.btn-tipologia {
     display: flex;
     align-items: center;
-    padding-left: 120px;
-    }
-
-    .filter-item i {
-    margin-right: 2px;  /* 👈 espacio entre el icono del ojo y el texto */
-    margin-left: 14px; /* lo podés ajustar */
-    }
-
-    .filter-item .tipologia-texto {
-    font-size: 13px;
-    margin-left: 8px;
-    font-weight: 300;
-    color: rgb(255, 255, 255, 0.85);
-    }
-
-    .dropdown-content .filter-item:hover {
-    background-color: rgba(0, 0, 0, 0.2); /* Celeste claro */
-    border-radius: 0px;
-    margin-left: 0px;
-    }
-
-    .dropdown-content .filter-item { /* Opciones */
-    color: #6e675e;
-    background-color: #888888; /* Cambialo si querés otro fondo por defecto */
-    font-size: 14px;
-    padding: 0px 0px;
-    border-radius: 0px;
-    position: relative; /* Necesario para que el botón se posicione respecto a este */
-    }
-
-/*------------------------------- FIN NACIONAL SEGUNDA VUELTA ---------------------------------*/
-
-
-/*------------------------------- CHEVRON---------------------------------*/
-
-    /* BI BI iconos */
-    .category-header .eye-button .bi:not([class*="-fill"]):not(.bi-chevron-compact-down):not(.bi-chevron-compact-up) {
-    color: #505050 !important; /* Color gris para los iconos de categoría no activos */
-    }
-
-    .category-header i.bi-chevron-compact-down,
-    .category-header i.bi-chevron-compact-up {
-    flex-shrink: 0;         /* ❗ Que el ícono NO se achique nunca */
-    margin-left: 0;      /* ❗ Espacio entre texto y chevron */
-    font-size: 16px;
-    }
-
-    #chevronDesplegables {
-        margin-right: 8%; /* Ajusta este valor según el espacio que necesites */
-        font-size: 14px;
-    }
-
-    #generalesChevron {
-        margin-right: 8%; /* Ajusta este valor según el espacio que necesites */
-        font-size: 16px;
-    }
-
-    .chevron-icon {
-        flex-shrink: 0;
-        margin-left: 12px;
-        font-size: 16px;
-        margin-right: 8%;
-    }
-
-    .layer-toggle-button .chevron-icon { /*Resultados 2023*/
-        font-size: 14px;       /* <-- 1. Hazlo más chico (puedes ajustar este valor) */
-        margin-left: auto;     /* <-- 2. Empuja el ícono completamente hacia la derecha */
-        margin-right: 20px;     /* <-- 3. Crea el espacio de 6px desde el borde derecho */
-        flex-shrink: 0;        /* <-- 4. Evita que el ícono se encoja si no hay espacio */
-    }
-    .btn-tipologia .chevron-icon { /*Por ganador*/
-        font-size: 12px;       /* <-- 1. Hazlo más chico (puedes ajustar este valor) */
-        margin-left: auto;     /* <-- 2. Empuja el ícono completamente hacia la derecha */
-        margin-right: 8%;     /* <-- 3. Crea el espacio de 6px desde el borde derecho */
-        flex-shrink: 0;        /* <-- 4. Evita que el ícono se encoja si no hay espacio */
-    }
-
-    .category-header .chevron-icon {
-        transition: transform 0.15s ease-in-out;
-    }
-    .category.active .category-header .chevron-icon {
-        transform: rotate(180deg);
-    }
-
-    /* Chevron de los botones de capa */
-    .plazas-dropdown .layer-toggle-button .chevron-icon {
-        transition: transform 0.15s ease-in-out;
-    }
-
-    .plazas-dropdown.submenu-activo .layer-toggle-button .chevron-icon {
-        transform: rotate(180deg); /* <-- Gira el ícono */
-    }
-
-    .btn-tipologia .chevron-icon {
-        transition: transform 0.15s ease-in-out;
-
-    }
-    .dropdown.active .btn-tipologia .chevron-icon {
-        transform: rotate(180deg);
-    }
-
-    .plazas-dropdown .dropdown .btn-tipologia .bi-chevron-compact-down {
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .plazas-dropdown .dropdown.active .btn-tipologia .bi-chevron-compact-down {
-        transform: rotate(180deg);
-    }
-/*-------------------------------FIN CHEVRON---------------------------------*/
-
-/*------------------------------- CATEGORY-ACTIVE---------------------------------*/
-
-    .category {
-    position: relative;
+    justify-content: flex-start; /* <-- CLAVE: Agrupa el ícono y el texto a la izquierda */
+    width: 100%;
+    padding: 9px 0px; /* Padding unificado */
+    background-color: #424242;
+    color: rgba(255, 255, 255, 0.9);
+    border: none;
     cursor: pointer;
+    font-size: 0.95em;
     margin: 0;
-    padding: 0; /* No padding */
-    }
-    /*
-    .category.active > .category-header {
-    background-color: #3a3a3a; 
-    }
+    border-radius: 0;
+    transition: background-color 0.2s;
+}
 
-    .category.active .category-content > .dropdown {
-        border-left: 8px solid #484848;
-        padding-left: 0px; 
-        margin-left: 0px;  
-    }
+.layer-toggle-button .chevron-icon {
+    font-size: 13px;
+    margin-right: 18px;   /* Espacio a la derecha (ajusta el valor que ya tenía) */
+    margin-left: auto;    /* Déjalo en 'auto' para que se mantenga a la derecha */
+    display: inline-block;
+    transition: transform 0.2s ease-in-out;
+}
 
-    .category.active .category-content .plazas-subcategorias > .dropdown,
-    .category.active .category-content .luminarias-subcategorias > .dropdown {
-        border-left: 10px solid #525252; 
-        padding-left: 0px; 
-        margin-left: 0px;  
-    }
+.layer-toggle-button .chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+/* ===========================================================
+   OJO NUEVOS HIJOS
+   =========================================================== */
 
-    .category.active .category-content .plazas-subcategorias > .dropdown .dropdown-content > div[id$="Filter"],
-    .category.active .category-content .luminarias-subcategorias > .dropdown .dropdown-content > div[id$="Filter"] {
-        border-left: 8px solid #6b6b6b; 
-        padding-left: 0px; 
-        margin-left: 0px;
-    }
-    */
+.layer-toggle-button .bi-eye-fill,
+.btn-tipologia .bi-eye-fill 
+ {color: #ffffff !important; 
+  padding-left: 14px;
+}
 
+.layer-toggle-button .bi-eye-slash,
+.btn-tipologia .bi-eye-slash {
+    color: #8a8a8a !important; 
+    opacity: 0.6;
+    padding-left: 14px;
+}
 
-/* Línea en las categorías de primer nivel (dropdowns dentro de .category-content) */
-.category.active .category-content > .dropdown {
-  position: relative; /* ancla el pseudo-elemento */
+.layer-toggle-button:hover,
+.btn-tipologia:hover { background-color: #555; }
+.layer-toggle-button i,
+.btn-tipologia i {
+  font-size: 1.1em;
+  margin-right: 0px;
 }
 
 
-/* Línea en los dropdowns de segundo nivel (plazas-subcategorias, luminarias-subcategorias) */
-.category.active .category-content .plazas-subcategorias > .dropdown,
-.category.active .category-content .luminarias-subcategorias > .dropdown {
-  position: relative;
+/* ===========================================================
+   NUEVO NIETO
+   =========================================================== */
+
+.btn-tipologia,
+.dropdown-content label.filter-item {
+    background-color: #5e5e5e !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    border: none;
+    border-bottom: 1px solid rgb(245, 245, 245, 0.1);
+    font-weight: 300;
 }
 
-/* Línea en los "nietos" (filtros dentro del dropdown-content) */
-.category.active .category-content .plazas-subcategorias > .dropdown .dropdown-content > div[id$="Filter"],
-.category.active .category-content .luminarias-subcategorias > .dropdown .dropdown-content > div[id$="Filter"] {
-  position: relative;
-}
-.category.active .category-content .plazas-subcategorias > .dropdown .dropdown-content > div[id$="Filter"]::before,
-.category.active .category-content .luminarias-subcategorias > .dropdown .dropdown-content > div[id$="Filter"]::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 8px;
-  background-color: #6b6b6b;
+.btn-tipologia:hover,
+.dropdown-content label.filter-item:hover {
+    background-color: #737373 !important;
 }
 
-/*------------------------------- FIN CATEGORY-ACTIVE---------------------------------*/
+.btn-tipologia span {
+    padding-left: 14px;
+}
 
+.btn-tipologia .chevron-icon {
+    font-size: 13px;
+    margin-right: 18px;   /* Espacio a la derecha (ajusta el valor que ya tenía) */
+    margin-left: auto;    /* Déjalo en 'auto' para que se mantenga a la derecha */
+    display: inline-block;
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn-tipologia .chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* ===========================================================
+   BISNIETO
+   =========================================================== */
+/* Estilo base para el bisnieto */
+.bisnieto {
+    /* Copia los estilos del btn-tipologia */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 9px 0px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Efecto hover */
+.bisnieto:hover {
+    background-color: #555;
+}
+
+/* Alinea el ícono y el texto como en el btn-tipologia */
+.bisnieto i {
+    font-size: 1.1em;
+    margin-right: 0px;
+}
+.bisnieto span {
+    padding-left: 14px;
+}
+
+.bisnieto,
+.dropdown-content label.filter-item {
+    background-color: #737373 !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    border: none;
+    border-bottom: 1px solid rgb(245, 245, 245, 0.1);
+    font-weight: 300;
+}
+
+.bisnieto:hover,
+.dropdown-content label.filter-item:hover {
+    background-color: #707070 !important;
+}
+.bisnieto span {
+    padding-left: 14px;
+}
+
+.bisnieto .bi-eye-fill,
+.btn-tipologia .bi-eye-fill 
+ {color: #ffffff !important; 
+  padding-left: 14px;
+}
+
+.bisnieto .bi-eye-slash {
+    color: #8a8a8a !important; 
+    opacity: 0.6;
+    padding-left: 14px;
+}
+
+.bisnieto:hover,
+.btn-tipologia:hover { background-color: #555; }
+.bisnieto i,
+.btn-tipologia i {
+  font-size: 1.1em;
+  margin-right: 0px;
+}
+
+
+
+/* ===========================================================
+  MOSTRAR NOMBRES
+   =========================================================== */
+
+.layer-toggle-button .nombres-toggle-text {
+  margin-left: auto;
+  color: #b4b4b4 !important;
+  font-size: 10px !important;
+  cursor: pointer;
+  padding-right: 15px !important;
+  font-weight: 500;     /* un poco más fuerte */
+}
+
+
+.nombres-toggle-text {
+  margin-left: auto;
+  color: #ff0000 !important;
+  font-size: 9px;
+  cursor: pointer;
+  padding-right: 8px;
+  font-weight: 300; /* normal */
+}
+
+.nombres-toggle-text.active {
+  font-weight: 700; /* más grueso al estar activo */
+}
+
+
+/* ===========================================================
+   otros
+   =========================================================== */
+.chevron-icon {
+  display: inline-block;         /* 👈 Necesario para que pueda rotar */
+  transition: transform 0.3s ease;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.chevron-icon{display:inline-block;transition:transform .3s ease;}
+.chevron-icon.rotated{transform:rotate(180deg);}
