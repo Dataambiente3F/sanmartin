@@ -157,6 +157,23 @@ var lyr_FRACCIONESCENSALES_0 = new ol.layer.Vector({
             });
 
 
+var format_Educacion_0 = new ol.format.GeoJSON();
+var features_Educacion_0 = format_Educacion_0.readFeatures(json_Educacion_0, 
+            {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
+var jsonSource_Educacion_0 = new ol.source.Vector({
+    attributions: ' ',
+});
+jsonSource_Educacion_0.addFeatures(features_Educacion_0);
+var lyr_Educacion_0 = new ol.layer.Vector({
+                declutter: false,
+                source:jsonSource_Educacion_0, 
+                style: style_Educacion_0,
+                popuplayertitle: 'Educacion',
+                interactive: true,
+                title: '<img src="styles/legend/Educacion_0.png" /> Educacion'
+            });
+
+
 
 lyr_OSMStandard_0.setVisible(true);
 lyr_Plazas_0.setVisible(true);
@@ -167,6 +184,7 @@ lyr_Ejessecundarios_0.setVisible(true);
 lyr_CentrosComerciales_0.setVisible(true);
 lyr_CIRCUITOS_0.setVisible(true);
 lyr_FRACCIONESCENSALES_0.setVisible(true);
+lyr_Educacion_0.setVisible(true);
 
 
 
@@ -181,7 +199,8 @@ var layersList = [
     lyr_Ejessecundarios_0,
     lyr_CentrosComerciales_0,
     lyr_CIRCUITOS_0,
-    lyr_FRACCIONESCENSALES_0
+    lyr_FRACCIONESCENSALES_0,
+    lyr_Educacion_0
 ];
 
 
@@ -194,6 +213,7 @@ lyr_Ejessecundarios_0.set('fieldAliases', {'name': 'name', 'folders': 'folders',
 lyr_CentrosComerciales_0.set('fieldAliases', {'name': 'name', 'folders': 'folders', 'descriptio': 'descriptio', 'altitude': 'altitude', 'alt_mode': 'alt_mode', 'time_begin': 'time_begin', 'time_end': 'time_end', 'time_when': 'time_when', 'ID': 'ID', 'descripci�': 'descripci�', });
 lyr_CIRCUITOS_0.set('fieldAliases', {'name': 'name', 'folders': 'folders', 'descriptio': 'descriptio', 'altitude': 'altitude', 'alt_mode': 'alt_mode', 'time_begin': 'time_begin', 'time_end': 'time_end', 'time_when': 'time_when', });
 lyr_FRACCIONESCENSALES_0.set('fieldAliases', {'name': 'name', 'folders': 'folders', 'descriptio': 'descriptio', 'altitude': 'altitude', 'alt_mode': 'alt_mode', 'time_begin': 'time_begin', 'time_end': 'time_end', 'time_when': 'time_when', });
+lyr_Educacion_0.set('fieldAliases', {'Nombre': 'Nombre', 'Categoría': 'Categoría', 'Dirección': 'Dirección', 'Latitud': 'Latitud', 'Longitud': 'Longitud', 'Descripción': 'Descripción', });
 
 
 
@@ -205,6 +225,7 @@ lyr_Ejessecundarios_0.set('fieldImages', {'name': 'TextEdit', 'folders': 'TextEd
 lyr_CentrosComerciales_0.set('fieldImages', {'name': 'TextEdit', 'folders': 'TextEdit', 'descriptio': '', 'altitude': 'TextEdit', 'alt_mode': 'TextEdit', 'time_begin': 'TextEdit', 'time_end': 'TextEdit', 'time_when': 'TextEdit', 'ID': 'TextEdit', 'descripci�': '', });
 lyr_CIRCUITOS_0.set('fieldImages', {'name': 'TextEdit', 'folders': 'TextEdit', 'descriptio': '', 'altitude': 'TextEdit', 'alt_mode': 'TextEdit', 'time_begin': 'TextEdit', 'time_end': 'TextEdit', 'time_when': 'TextEdit', });
 lyr_FRACCIONESCENSALES_0.set('fieldImages', {'name': 'TextEdit', 'folders': 'TextEdit', 'descriptio': '', 'altitude': 'TextEdit', 'alt_mode': 'TextEdit', 'time_begin': 'TextEdit', 'time_end': 'TextEdit', 'time_when': 'TextEdit', });
+lyr_Educacion_0.set('fieldImages', {'Nombre': 'TextEdit', 'Categoría': 'TextEdit', 'Dirección': 'TextEdit', 'Latitud': 'TextEdit', 'Longitud': 'TextEdit', 'Descripción': 'TextEdit', });
 
 
 
@@ -216,6 +237,7 @@ lyr_Ejessecundarios_0.set('fieldLabels', {'name': 'no label', 'folders': 'no lab
 lyr_CentrosComerciales_0.set('fieldLabels', {'name': 'no label', 'folders': 'no label', 'descriptio': 'no label', 'altitude': 'no label', 'alt_mode': 'no label', 'time_begin': 'no label', 'time_end': 'no label', 'time_when': 'no label', 'ID': 'no label', 'descripci�': 'no label', });
 lyr_CIRCUITOS_0.set('fieldLabels', {'name': 'no label', 'folders': 'no label', 'descriptio': 'no label', 'altitude': 'no label', 'alt_mode': 'no label', 'time_begin': 'no label', 'time_end': 'no label', 'time_when': 'no label', });
 lyr_FRACCIONESCENSALES_0.set('fieldLabels', {'name': 'no label', 'folders': 'no label', 'descriptio': 'no label', 'altitude': 'no label', 'alt_mode': 'no label', 'time_begin': 'no label', 'time_end': 'no label', 'time_when': 'no label', });
+lyr_Educacion_0.set('fieldLabels', {'Nombre': 'no label', 'Categoría': 'no label', 'Dirección': 'no label', 'Latitud': 'no label', 'Longitud': 'no label', 'Descripción': 'no label', });
 
 
 

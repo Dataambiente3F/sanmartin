@@ -43,7 +43,7 @@
         </div>
 
         <div id="top-title-bar">
-        <span>Mapa Urbano de General San Martín</span>
+        <span>Mapa Urbano</span>
         <img src="images/3F.png" alt="Logo 3F" id="logo-3f">
         </div>
         
@@ -73,7 +73,7 @@
                                 <button id="toggleLocalidadesBtn" class="layer-toggle-button">
                                     <i id="localidadesLayerIcon" class="bi bi-eye-slash"></i>
                                     <span>Localidades</span>
-                                    <span id="toggleNombresLocalidadesBtn" class="nombres-toggle-text">Ocultar Nombres</span>
+                                    <span id="toggleNombresLocalidadesBtn" class="nombres-toggle-text">Ver nombres</span>
                                 </button>
                             </div>
                             
@@ -110,6 +110,45 @@
                             </div>          
                         </div>
                 </div> <!-- Fin menu-group ALTA TRANSITABILIDAD -->   
+
+                <!-- Inicio EDUCACIÓN --> 
+                  <div class="category">
+                    <div class="category-header">
+                        <div class="category-left">
+                            <button id="educacionToggle" class="eye-button">
+                                <i id="educacionToggleIcon" class="bi bi-book"></i>
+                            </button>
+                            <span class="category-title">EDUCACIÓN</span>
+                        </div>
+                        <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                    </div>
+                        <div class="category-content">
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="toggleJardinesBtn" class="layer-toggle-button">
+                                    <i id="jardinesIcon" class="bi bi-eye-slash"></i>
+                                    <span>Jardines</span>
+                                </button>
+                            </div>
+                            <div class="dropdown plazas-dropdown"> 
+                                <button id="togglePrimariasBtn" class="layer-toggle-button">
+                                    <i id="primariasIcon" class="bi bi-eye-slash"></i>
+                                    <span>Escuelas primarias</span>
+                                </button>
+                            </div>
+                            <div class="dropdown plazas-dropdown">
+                                <button id="toggleSecundariasBtn" class="layer-toggle-button">
+                                    <i id="secundariasIcon" class="bi bi-eye-slash"></i>
+                                    <span>Escuelas secundarias</span>
+                                </button>
+                            </div>          
+                            <div class="dropdown plazas-dropdown">
+                                <button id="toggleUniversidadesBtn" class="layer-toggle-button">
+                                    <i id="universidadesIcon" class="bi bi-eye-slash"></i>
+                                    <span>Universidades</span>
+                                </button>
+                            </div>       
+                        </div>
+                </div> <!-- Fin menu-group EDUCACIÓN -->   
 
                 <!-- Inicio CENSO --> 
                 <div class="category">
@@ -203,6 +242,33 @@
                         </div>
                         <!-- Fin Submenú: Tecnología -->
 
+                        <!-- Submenú: Condicion Económica -->
+                        <div class="dropdown plazas-dropdown">
+                            <button class="layer-toggle-button">
+                                <span>Condición económica</span>
+                                <i class="bi bi-chevron-compact-down chevron-icon"></i>
+                            </button>
+                            <div class="plazas-subcategorias">
+                                <button id="toggleocupadosBtn" class="btn-tipologia">
+                                    <i id="ocupadosIcon" class="bi bi-eye-slash"></i>
+                                    <span>% Ocupados</span>
+                                </button>
+                            </div>
+                            <div class="plazas-subcategorias">
+                                <button id="toggledesocupadosBtn" class="btn-tipologia">
+                                    <i id="desocupadosIcon" class="bi bi-eye-slash"></i>
+                                    <span>% Desocupados</span>
+                                </button>
+                            </div>
+                            <div class="plazas-subcategorias">
+                                <button id="toggleinactivosBtn" class="btn-tipologia">
+                                    <i id="inactivosIcon" class="bi bi-eye-slash"></i>
+                                    <span>% Inactivos</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Fin Submenú: Condicion Económica -->
+
                     </div>
                 </div>
                 <!-- Fin CENSO -->
@@ -255,7 +321,7 @@
             <div class="category">
             <div class="category-header">
                 <div class="category-left">
-                <button id="eleccionesToggles" class="eye-button">
+                <button id="eleccionesToggle" class="eye-button">
                     <i id="eleccionesToggleIcon" class="bi bi-map-fill"></i>
                 </button>
                 <span class="category-title">ELECCIONES</span>
@@ -277,7 +343,7 @@
 
                     <!-- Submenú: Por ganador -->
                     <div class="dropdown plazas-dropdown">
-                        <button id="togglePorGanadorBtn" class="btn-tipologia">
+                        <button id="toggleGanadorPorCircuitoBt" class="btn-tipologia">
                             <span class="tipologia-texto">Ganador por circuito</span>
                             <i class="bi bi-chevron-compact-down chevron-icon"></i>
                         </button>
@@ -310,7 +376,7 @@
                         
                     <!-- Submenú: Por ganador -->
                     <div class="dropdown plazas-dropdown">
-                        <button id="togglePorGanadorBtn" class="btn-tipologia">
+                        <button id="toggleAgrupacionPorCircuitoBtn" class="btn-tipologia">
                             <span class="tipologia-texto">Agrupación por circuito</span>
                             <i class="bi bi-chevron-compact-down chevron-icon"></i>
                         </button>
@@ -356,29 +422,54 @@
         
             <!-- Capas a agregar -->
             <script src="layers/Plazas_0.js"></script>
-            <script src="layers/Localidades_0.js"></script>
-            <script src="layers/Limites3F_0.js"></script>
-            <script src="layers/Ejesestructurantes_0.js"></script>
-            <script src="layers/Ejessecundarios_0.js"></script>
+
+            <script src="layers/Generales/Localidades_0.js"></script>
+            <script src="layers/Generales/Limites3F_0.js"></script>
+
+            <script src="layers/Alta transitabilidad/Ejesestructurantes_0.js"></script>
+            <script src="layers/Alta transitabilidad/Ejessecundarios_0.js"></script>
+
             <script src="layers/CentrosComerciales_0.js"></script>
             <script src="layers/FRACCIONESCENSALES_0.js"></script>
             <script src="layers/CIRCUITOS_0.js"></script>
             <script src="layers/intersecciones.js"></script>
             <script src="layers/callejero_normalizado.js"></script>
+            
+            <script src="layers/Educacion/Educacion_0.js"></script>
 
-            <script src="js/funciones/seleccionExclusiva.js" defer></script>
-
-
-            <script src="js/datosVotos.js"></script>
-            <script src="js/censoNiveleducativo.js"></script>
-            <script src="js/censoEdad.js"></script>
-            <script src="js/censoInternet.js"></script>
-
-
-        
-            <script src="js/capasEstilos.js" defer></script>
-            <script src="js/popups.js" defer></script>
             <script src="js/map.js" defer></script>
+
+            <!-- Estilos -->
+            <script src="js/estilos/educacion.js" defer></script>
+            <script src="js/estilos/censo.js" defer></script>
+            <script src="js/capasEstilos.js" defer></script>
+
+            <script src="js/popups.js" defer></script>
+
+            <!-- Funciones -->
+            <script src="js/funciones/seleccionExclusiva.js" defer></script>
+            <script src="js/funciones/funcionesGenerales.js" defer></script>
+            <script src="js/funciones/Generales.js" defer></script>
+            <script src="js/funciones/AltaTransitabilidad.js" defer></script>
+            <script src="js/funciones/Educacion.js" defer></script>
+            <script src="js/funciones/Censo.js" defer></script>
+            <script src="js/funciones/EspaciosUrbanos.js" defer></script>
+            <script src="js/funciones/Elecciones.js" defer></script>
+
+
+            <!-- Elecciones -->
+            <script src="js/elecciones/datosVotos.js"></script>
+
+            <!-- Datos Censo 2022 -->
+            <script src="js/censo/censoNiveleducativo.js"></script>
+            <script src="js/censo/censoEdad.js"></script>
+            <script src="js/censo/censoInternet.js"></script>
+            <script src="js/censo/censoCondicioneconomica.js"></script>
+
+
+            <!-- Lógica -->
+            
+
             
 
             <script src="js/unified_search.js" defer></script>
@@ -389,18 +480,25 @@
             <!------------------------------------- GENERALES ----------------------------------->
             
             <!-- POPUT PLAZAS -->
-            <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer">✖</a>
-                <div id="popup-content"></div>
-            </div> <!-- FIN POPUT PLAZAS -->
+            <div id="popup-plazas" class="ol-popup">
+                <a href="#" id="popup-plazas-closer" class="ol-popup-closer"></a>
+                <div id="popup-plazas-content"></div>
+            </div>
 
             <!-- POPUP CC -->
-            <div id="popup-comerciales" class="ol-popup" >
-                <a href="#" id="popup-comerciales-closer" >✖</a>
+            <div id="popup-comerciales" class="ol-popup">
+                <a href="#" id="popup-comerciales-closer" class="ol-popup-closer"></a>
                 <div id="popup-comerciales-content"></div>
-            </div> <!-- FIN POPUT cc -->
+            </div>
+
+            <!-- POPUP EDUCACION -->
+            <div id="popup-educacion" class="ol-popup">
+                <a href="#" id="popup-educacion-closer">✖</a>
+                <div id="popup-educacion-content"></div>
+            </div>
+
         </div>  
-    </body>
+    </body> 
     
     <script>
     if (sessionStorage.getItem("authenticated") !== "true") {
